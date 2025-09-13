@@ -670,7 +670,7 @@ class SushiGame {
             if (this.orders.length < 3) {
                 this.generateOrder();
             }
-         }, 240000 + Math.random() * 120000);
+         }, 6000 + Math.random() * 3000);
         
         setTimeout(() => this.generateOrder(), 10000);
     }
