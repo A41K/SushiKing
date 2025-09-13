@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sushi Restaurant Simulator</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f0f8ff;
+        }
+        
+        #gameContainer {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        #gameCanvas {
+            border: 2px solid #333;
+            background: #fff;
+            cursor: grab;
+        }
+        
+        #gameCanvas:active {
+            cursor: grabbing;
+        }
+        
+        #ui {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+        
+        #inventory, #shop, #orders, #recipes {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+        
+        #inventory {
+            flex: 1;
+        }
+        
+        #shop, #orders, #recipes {
+            width: 200px;
+        }
+        
+        .item-button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            margin: 2px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .item-button:hover {
+            background: #45a049;
+        }
+        
+        .order-item {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        .order-urgent {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        
+        .recipe-item {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+        
+        #money {
+            font-weight: bold;
+            color: #2e7d32;
+        }
+        
+        .timer-bar {
+            width: 100%;
+            height: 4px;
+            background: #ddd;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 2px;
+        }
+        
+        .timer-progress {
+            height: 100%;
+            background: #4CAF50;
+            transition: width 0.1s ease;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="900" height="600"></canvas>
+        
+        <div id="ui">
+            <div id="inventory">
+                <h3>Inventory</h3>
+                <div id="inventoryItems"></div>
+            </div>
+            
+            <div id="shop">
+                <h3>Shop</h3>
+                <div id="money">Money: $100</div>
+                <br>
+                <button class="item-button" onclick="buyItem('salmon', 10)">
+                    🐟 Salmon - $10
+                </button>
+                <button class="item-button" onclick="buyItem('rice', 5)">
+                    🍚 Rice - $5
+                </button>
+                <button class="item-button" onclick="buyItem('nori', 3)">
+                    🟫 Nori - $3
+                </button>
+                <button class="item-button" onclick="buyItem('cucumber', 2)">
+                    🥒 Cucumber - $2
+                </button>
+                <button class="item-button" onclick="buyItem('tuna', 12)">
+                    🐟 Tuna - $12
+                </button>
+                <button class="item-button" onclick="buyItem('avocado', 4)">
+                    🥑 Avocado - $4
+                </button>
+                <button class="item-button" onclick="buyItem('eel', 15)">
+                    🦎 Eel - $15
+                </button>
+            </div>
+            
+            <div id="orders">
+                <h3>Customer Orders</h3>
+                <div id="ordersList"></div>
+            </div>
+            
+            <div id="recipes">
+                <h3>Recipes</h3>
+                <div id="recipesList">
+                    <div class="recipe-item">
+                        <strong>Salmon Nigiri</strong><br>
+                        Salmon + Rice<br>
+                        Sells for: $25
+                    </div>
+                    <div class="recipe-item">
+                        <strong>Tuna Roll</strong><br>
+                        Tuna + Rice + Nori<br>
+                        Sells for: $30
+                    </div>
+                    <div class="recipe-item">
+                        <strong>California Roll</strong><br>
+                        Cucumber + Avocado + Rice + Nori<br>
+                        Sells for: $35
+                    </div>
+                    <div class="recipe-item">
+                        <strong>Dragon Roll</strong><br>
+                        Eel + Avocado + Rice + Nori<br>
+                        Sells for: $45
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class SushiGame {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.money = 100;
+                this.inventory = {};
+                this.gameObjects = [];
+                this.draggedObject = null;
+                this.mousePos = { x: 0, y: 0 };
+                this.orders = [];
+                this.nextOrderId = 1;
+                this.processingItems = [];
+                
+                this.recipes = {
+                    'salmon_nigiri': {
+                        ingredients: ['salmon', 'rice'],
+                        cookTime: 3000,
+                        sellPrice: 25,
+                        name: 'Salmon Nigiri'
+                    },
+                    'tuna_roll': {
+                        ingredients: ['tuna', 'rice', 'nori'],
+                        cookTime: 4000,
+                        sellPrice: 30,
+                        name: 'Tuna Roll'
+                    },
+                    'california_roll': {
+                        ingredients: ['cucumber', 'avocado', 'rice', 'nori'],
+                        cookTime: 5000,
+                        sellPrice: 35,
+                        name: 'California Roll'
+                    },
+                    'dragon_roll': {
+                        ingredients: ['eel', 'avocado', 'rice', 'nori'],
+                        cookTime: 6000,
+                        sellPrice: 45,
+                        name: 'Dragon Roll'
+                    }
+                };
+                
+                this.setupEventListeners();
+                this.createWorkstations();
+                this.startOrderGeneration();
+                this.gameLoop();
+            }
+            
+            setupEventListeners() {
+                this.canvas.addEventListener('mousedown', (e) => this.handleMouseDown(e));
+                this.canvas.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+                this.canvas.addEventListener('mouseup', (e) => this.handleMouseUp(e));
+            }
+            
+            createWorkstations() {
+                // Prep counter
+                this.gameObjects.push({
+                    type: 'workstation',
+                    name: 'prep',
+                    x: 50,
+                    y: 50,
+                    width: 150,
+                    height: 80,
+                    color: '#8B4513',
+                    ingredients: []
+                });
+                
+                // Cooking station
+                this.gameObjects.push({
+                    type: 'workstation',
+                    name: 'cook',
+                    x: 250,
+                    y: 50,
+                    width: 150,
+                    height: 80,
+                    color: '#FF6347',
+                    ingredients: []
+                });
+                
+                // Serving counter
+                this.gameObjects.push({
+                    type: 'workstation',
+                    name: 'serve',
+                    x: 450,
+                    y: 50,
+                    width: 150,
+                    height: 80,
+                    color: '#32CD32',
+                    dishes: []
+                });
+            }
+            
+            startOrderGeneration() {
+                setInterval(() => {
+                    if (this.orders.length < 5) {
+                        this.generateOrder();
+                    }
+                }, 8000 + Math.random() * 7000);
+                
+                // Generate first order
+                setTimeout(() => this.generateOrder(), 2000);
+            }
+            
+            generateOrder() {
+                const recipeKeys = Object.keys(this.recipes);
+                const randomRecipe = recipeKeys[Math.floor(Math.random() * recipeKeys.length)];
+                const recipe = this.recipes[randomRecipe];
+                
+                const order = {
+                    id: this.nextOrderId++,
+                    dish: randomRecipe,
+                    dishName: recipe.name,
+                    payment: recipe.sellPrice + Math.floor(Math.random() * 10),
+                    timeLeft: 45000 + Math.random() * 30000, // 45-75 seconds
+                    maxTime: 75000
+                };
+                
+                this.orders.push(order);
+                this.updateOrdersUI();
+            }
+            
+            getMousePos(e) {
+                const rect = this.canvas.getBoundingClientRect();
+                return {
+                    x: e.clientX - rect.left,
+                    y: e.clientY - rect.top
+                };
+            }
+            
+            handleMouseDown(e) {
+                this.mousePos = this.getMousePos(e);
+                
+                // Check for draggable items
+                for (let i = this.gameObjects.length - 1; i >= 0; i--) {
+                    const obj = this.gameObjects[i];
+                    if ((obj.type === 'ingredient' || obj.type === 'dish') && 
+                        this.isPointInRect(this.mousePos, obj)) {
+                        this.draggedObject = obj;
+                        obj.isDragging = true;
+                        break;
+                    }
+                }
+            }
+            
+            handleMouseMove(e) {
+                this.mousePos = this.getMousePos(e);
+                
+                if (this.draggedObject) {
+                    this.draggedObject.x = this.mousePos.x - this.draggedObject.width / 2;
+                    this.draggedObject.y = this.mousePos.y - this.draggedObject.height / 2;
+                }
+            }
+            
+            handleMouseUp(e) {
+                if (this.draggedObject) {
+                    this.draggedObject.isDragging = false;
+                    
+                    const workstation = this.getWorkstationAt(this.mousePos);
+                    if (workstation) {
+                        this.processAtWorkstation(this.draggedObject, workstation);
+                    }
+                    
+                    this.draggedObject = null;
+                }
+            }
+            
+            isPointInRect(point, rect) {
+                return point.x >= rect.x && 
+                       point.x <= rect.x + rect.width && 
+                       point.y >= rect.y && 
+                       point.y <= rect.y + rect.height;
+            }
+            
+            getWorkstationAt(pos) {
+                return this.gameObjects.find(obj => 
+                    obj.type === 'workstation' && this.isPointInRect(pos, obj)
+                );
+            }
+            
+            processAtWorkstation(item, workstation) {
+                if (item.type === 'ingredient' && workstation.name === 'prep') {
+                    // Add ingredient to prep station
+                    workstation.ingredients.push(item.name);
+                    this.removeGameObject(item);
+                    this.checkForRecipe(workstation);
+                } else if (item.type === 'dish' && workstation.name === 'serve') {
+                    // Serve dish to customers
+                    this.serveDish(item);
+                    this.removeGameObject(item);
+                }
+            }
+            
+            checkForRecipe(workstation) {
+                const ingredients = workstation.ingredients.sort();
+                
+                for (const [recipeKey, recipe] of Object.entries(this.recipes)) {
+                    const requiredIngredients = [...recipe.ingredients].sort();
+                    
+                    if (this.arraysEqual(ingredients, requiredIngredients)) {
+                        // Start cooking
+                        workstation.ingredients = [];
+                        this.startCooking(recipe, recipeKey);
+                        break;
+                    }
+                }
+            }
+            
+            arraysEqual(a, b) {
+                return a.length === b.length && a.every((val, i) => val === b[i]);
+            }
+            
+            startCooking(recipe, recipeKey) {
+                const cookingItem = {
+                    recipe: recipeKey,
+                    recipeName: recipe.name,
+                    startTime: Date.now(),
+                    cookTime: recipe.cookTime,
+                    sellPrice: recipe.sellPrice
+                };
+                
+                this.processingItems.push(cookingItem);
+                
+                setTimeout(() => {
+                    this.finishCooking(cookingItem);
+                }, recipe.cookTime);
+            }
+            
+            finishCooking(cookingItem) {
+                // Remove from processing
+                this.processingItems = this.processingItems.filter(item => item !== cookingItem);
+                
+                // Create finished dish
+                const dish = {
+                    type: 'dish',
+                    name: cookingItem.recipeName,
+                    recipeKey: cookingItem.recipe,
+                    x: 350 + Math.random() * 100,
+                    y: 200 + Math.random() * 100,
+                    width: 50,
+                    height: 50,
+                    color: '#FFD700',
+                    sellPrice: cookingItem.sellPrice
+                };
+                
+                this.gameObjects.push(dish);
+            }
+            
+            serveDish(dish) {
+                // Find matching order
+                const orderIndex = this.orders.findIndex(order => order.dish === dish.recipeKey);
+                
+                if (orderIndex !== -1) {
+                    const order = this.orders[orderIndex];
+                    this.money += order.payment;
+                    this.orders.splice(orderIndex, 1);
+                    this.updateOrdersUI();
+                    this.updateUI();
+                    
+                    // Show success message
+                    console.log(`Served ${dish.name} for $${order.payment}!`);
+                } else {
+                    // No matching order, still get base price
+                    this.money += dish.sellPrice;
+                    this.updateUI();
+                }
+            }
+            
+            removeGameObject(obj) {
+                const index = this.gameObjects.indexOf(obj);
+                if (index > -1) {
+                    this.gameObjects.splice(index, 1);
+                }
+            }
+            
+            spawnIngredient(type) {
+                if (this.inventory[type] > 0) {
+                    this.inventory[type]--;
+                    
+                    const ingredient = {
+                        type: 'ingredient',
+                        name: type,
+                        x: 100 + Math.random() * 200,
+                        y: 300 + Math.random() * 200,
+                        width: 40,
+                        height: 40,
+                        color: this.getIngredientColor(type)
+                    };
+                    
+                    this.gameObjects.push(ingredient);
+                    this.updateInventoryUI();
+                }
+            }
+            
+            getIngredientColor(type) {
+                const colors = {
+                    'salmon': '#FF6B6B',
+                    'rice': '#F4F4F4',
+                    'nori': '#2D5016',
+                    'cucumber': '#4CAF50',
+                    'tuna': '#8B0000',
+                    'avocado': '#90EE90',
+                    'eel': '#4B0082'
+                };
+                return colors[type] || '#888';
+            }
+            
+            buyItem(item, cost) {
+                if (this.money >= cost) {
+                    this.money -= cost;
+                    this.inventory[item] = (this.inventory[item] || 0) + 1;
+                    this.updateUI();
+                }
+            }
+            
+            updateUI() {
+                document.getElementById('money').textContent = `Money: $${this.money}`;
+                this.updateInventoryUI();
+            }
+            
+            updateInventoryUI() {
+                const inventoryDiv = document.getElementById('inventoryItems');
+                inventoryDiv.innerHTML = '';
+                
+                Object.entries(this.inventory).forEach(([item, count]) => {
+                    if (count > 0) {
+                        const button = document.createElement('button');
+                        button.className = 'item-button';
+                        button.textContent = `${item} (${count})`;
+                        button.onclick = () => this.spawnIngredient(item);
+                        inventoryDiv.appendChild(button);
+                    }
+                });
+            }
+            
+            updateOrdersUI() {
+                const ordersDiv = document.getElementById('ordersList');
+                ordersDiv.innerHTML = '';
+                
+                this.orders.forEach(order => {
+                    const orderDiv = document.createElement('div');
+                    const timeLeft = Math.max(0, order.timeLeft);
+                    const isUrgent = timeLeft < 15000;
+                    
+                    orderDiv.className = isUrgent ? 'order-item order-urgent' : 'order-item';
+                    orderDiv.innerHTML = `
+                        <strong>${order.dishName}</strong><br>
+                        Pay: $${order.payment}<br>
+                        Time: ${Math.ceil(timeLeft/1000)}s
+                        <div class="timer-bar">
+                            <div class="timer-progress" style="width: ${(timeLeft/order.maxTime)*100}%"></div>
+                        </div>
+                    `;
+                    ordersDiv.appendChild(orderDiv);
+                });
+            }
+            
+            updateOrders() {
+                const deltaTime = 16; // ~60fps
+                this.orders = this.orders.filter(order => {
+                    order.timeLeft -= deltaTime;
+                    return order.timeLeft > 0;
+                });
+                
+                if (Math.random() < 0.01) { // Update UI occasionally
+                    this.updateOrdersUI();
+                }
+            }
+            
+            render() {
+                // Clear canvas
+                this.ctx.fillStyle = '#f8f8f8';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Draw all game objects
+                this.gameObjects.forEach(obj => {
+                    this.ctx.fillStyle = obj.color;
+                    this.ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
+                    
+                    // Draw labels
+                    this.ctx.fillStyle = '#000';
+                    this.ctx.font = '12px Arial';
+                    this.ctx.textAlign = 'center';
+                    
+                    let text = '';
+                    if (obj.type === 'workstation') {
+                        text = obj.name.toUpperCase();
+                        if (obj.ingredients && obj.ingredients.length > 0) {
+                            text += `\n(${obj.ingredients.join(', ')})`;
+                        }
+                    } else {
+                        text = obj.name;
+                    }
+                    
+                    const lines = text.split('\n');
+                    lines.forEach((line, i) => {
+                        this.ctx.fillText(
+                            line,
+                            obj.x + obj.width/2,
+                            obj.y + obj.height/2 + (i * 12) - ((lines.length-1) * 6)
+                        );
+                    });
+                });
+                
+                // Draw cooking progress
+                this.processingItems.forEach((item, index) => {
+                    const progress = (Date.now() - item.startTime) / item.cookTime;
+                    const barY = 200 + index * 25;
+                    
+                    this.ctx.fillStyle = '#ddd';
+                    this.ctx.fillRect(650, barY, 200, 20);
+                    
+                    this.ctx.fillStyle = '#4CAF50';
+                    this.ctx.fillRect(650, barY, 200 * progress, 20);
+                    
+                    this.ctx.fillStyle = '#000';
+                    this.ctx.textAlign = 'left';
+                    this.ctx.fillText(`Cooking: ${item.recipeName}`, 655, barY + 14);
+                });
+                
+                this.ctx.textAlign = 'left';
+            }
+            
+            gameLoop() {
+                this.updateOrders();
+                this.render();
+                requestAnimationFrame(() => this.gameLoop());
+            }
+        }
+        
+        // Global functions
+        let game;
+        
+        function buyItem(item, cost) {
+            game.buyItem(item, cost);
+        }
+        
+        // Initialize game
+        window.addEventListener('load', () => {
+            game = new SushiGame();
+        });
+    </script>
+</body>
+</html>
