@@ -1,0 +1,428 @@
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(45deg, #1a1a2e, #16213e);
+            font-family: 'Press Start 2P', monospace;
+            color: #fff;
+            overflow-x: hidden;
+        }
+        
+        #gameContainer {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 10px;
+        }
+        
+        #header {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(90deg, #0f3460, #16537e);
+            border: 3px solid #fff;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        
+        #header h1 {
+            font-size: 24px;
+            text-shadow: 2px 2px #000;
+            margin-bottom: 10px;
+        }
+        
+        #headerButtons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .pixel-btn {
+            background: #4a90e2;
+            border: 2px solid #fff;
+            color: #fff;
+            padding: 8px 16px;
+            font-family: inherit;
+            font-size: 10px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.1s;
+            box-shadow: 2px 2px #000;
+        }
+        
+        .pixel-btn:hover {
+            background: #357abd;
+            transform: translate(1px, 1px);
+            box-shadow: 1px 1px #000;
+        }
+        
+        .pixel-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: none;
+        }
+        
+        .pixel-btn.shop {
+            background: #50c878;
+        }
+        
+        .pixel-btn.shop:hover {
+            background: #45b56a;
+        }
+        
+        .pixel-btn.tutorial {
+            background: #ff6b6b;
+        }
+        
+        .pixel-btn.tutorial:hover {
+            background: #ff5252;
+        }
+        
+        #gameArea {
+            display: flex;
+            gap: 10px;
+        }
+        
+        #canvasContainer {
+            flex: 1;
+            border: 3px solid #fff;
+            background: #2c2c54;
+            position: relative;
+        }
+        
+        #gameCanvas {
+            background: linear-gradient(135deg, #667db6, #0082c8, #667db6);
+            cursor: grab;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+        
+        #gameCanvas:active {
+            cursor: grabbing;
+        }
+        
+        #sidebar {
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .panel {
+            background: #40407a;
+            border: 3px solid #fff;
+            padding: 15px;
+            box-shadow: 3px 3px #000;
+        }
+        
+        .panel h3 {
+            font-size: 12px;
+            margin-bottom: 10px;
+            text-align: center;
+            color: #ffd700;
+            text-shadow: 1px 1px #000;
+        }
+        
+        #money {
+            text-align: center;
+            font-size: 14px;
+            color: #50c878;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px #000;
+        }
+        
+        .order-item, .recipe-item {
+            background: #2c2c54;
+            border: 2px solid #fff;
+            padding: 8px;
+            margin: 5px 0;
+            font-size: 8px;
+            line-height: 12px;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .order-item {
+            background: #706fd3;
+        }
+        
+        .order-urgent {
+            background: #ff5252;
+            animation: blink 0.5s infinite;
+        }
+        
+        @keyframes blink {
+            50% { opacity: 0.7; }
+        }
+        
+        .timer-bar {
+            width: 100%;
+            height: 6px;
+            background: #000;
+            border: 1px solid #fff;
+            margin-top: 4px;
+            overflow: hidden;
+        }
+        
+        .timer-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #50c878, #ffd700, #ff6b6b);
+            transition: width 0.1s ease;
+        }
+        
+        /* Tooltip Styles */
+        .tooltip {
+            position: absolute;
+            background: #000;
+            color: #fff;
+            padding: 8px;
+            border: 2px solid #ffd700;
+            font-size: 8px;
+            line-height: 10px;
+            z-index: 1000;
+            max-width: 200px;
+            pointer-events: none;
+            box-shadow: 2px 2px #333;
+            white-space: nowrap;
+        }
+        
+        .canvas-tooltip {
+            position: fixed;
+            background: #000;
+            color: #fff;
+            padding: 8px;
+            border: 2px solid #ffd700;
+            font-size: 10px;
+            line-height: 12px;
+            z-index: 1000;
+            max-width: 250px;
+            pointer-events: none;
+            box-shadow: 3px 3px #333;
+            display: none;
+            font-family: 'Press Start 2P', monospace;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+        }
+        
+        .modal-content {
+            background: #40407a;
+            margin: 5% auto;
+            padding: 20px;
+            border: 4px solid #fff;
+            width: 80%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 5px 5px #000;
+        }
+        
+        .close {
+            color: #fff;
+            float: right;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 20px;
+        }
+        
+        .close:hover {
+            color: #ff6b6b;
+        }
+        
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .shop-item {
+            background: #2c2c54;
+            border: 2px solid #fff;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+        
+        .shop-item:hover {
+            background: #3c3c64;
+            transform: scale(1.05);
+        }
+        
+        .shop-item .price {
+            color: #ffd700;
+            margin-top: 5px;
+        }
+        
+        .tutorial-step {
+            background: #2c2c54;
+            border: 2px solid #fff;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        .tutorial-step h4 {
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+        
+        .process-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px 0;
+            font-size: 10px;
+        }
+        
+        .process-arrow {
+            margin: 0 10px;
+            color: #ffd700;
+        }
+        
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 5px;
+            margin-top: 10px;
+        }
+        
+        .inventory-item {
+            background: #2c2c54;
+            border: 2px solid #fff;
+            padding: 8px;
+            text-align: center;
+            font-size: 8px;
+            cursor: pointer;
+            transition: all 0.1s;
+            position: relative;
+        }
+        
+        .inventory-item:hover {
+            background: #3c3c64;
+            transform: scale(1.1);
+        }
+
+.order-tooltip {
+    background: linear-gradient(145deg, #1a1a2e, #16213e);
+    color: #ffffff;
+    padding: 12px;
+    border-radius: 8px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    max-width: 400px; /* Increased width */
+    min-width: 280px; /* Increased min width */
+    width: auto;
+    word-wrap: break-word;
+    white-space: normal;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.8);
+    border: 2px solid #ffd700;
+    pointer-events: none;
+    z-index: 9999 !important;
+    line-height: 1.3;
+    backdrop-filter: blur(3px);
+    transition: opacity 0.2s ease;
+    opacity: 0.95;
+    box-sizing: border-box;
+}
+
+.order-tooltip::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #ffd700, #ff6b6b, #4fc3f7, #ffd700);
+    border-radius: 10px;
+    z-index: -1;
+    animation: borderGlow 2s linear infinite;
+}
+
+@keyframes borderGlow {
+    0% { opacity: 0.8; }
+    50% { opacity: 1; }
+    100% { opacity: 0.8; }
+}
+
+.order-item {
+    position: relative;
+    cursor: help;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    padding: 8px;
+    margin: 4px 0;
+}
+
+.order-item:hover {
+    background-color: rgba(255, 215, 0, 0.1);
+    border-color: rgba(255, 215, 0, 0.3);
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(255, 215, 0, 0.2);
+}
+
+.inventory-tooltip {
+    background: linear-gradient(145deg, #1a1a2e, #16213e);
+    color: #ffffff;
+    padding: 10px;
+    border-radius: 6px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    max-width: 250px;
+    min-width: 180px;
+    word-wrap: break-word;
+    white-space: normal;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.8);
+    border: 2px solid #81c784;
+    pointer-events: none;
+    z-index: 10000 !important;
+    line-height: 1.3;
+    backdrop-filter: blur(3px);
+}
+
+.inventory-tooltip::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #81c784, #4fc3f7, #81c784);
+    border-radius: 8px;
+    z-index: -1;
+    animation: inventoryGlow 2s linear infinite;
+}
+
+@keyframes inventoryGlow {
+    0% { opacity: 0.7; }
+    50% { opacity: 1; }
+    100% { opacity: 0.7; }
+}
+
+.inventory-item {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+}
+
+.inventory-item:hover {
+    background-color: rgba(129, 199, 132, 0.1);
+    border-color: rgba(129, 199, 132, 0.3);
+    transform: scale(1.05);
+}
