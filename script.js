@@ -251,7 +251,7 @@ class SushiGame {
                     this.textures[fileName] = canvas;
                     resolve();
                 };
-                img.src = `./Textures/${fileName}.png`;
+                img.src = `/Textures/${fileName}.png`;
             });
         });
 
