@@ -21,10 +21,15 @@ class SushiGame {
         
         // Debug logging
         console.log('Game initialized with:');
-        console.log('timeLeft:', this.timeLeft);
         console.log('isPaused:', this.isPaused);
         console.log('gameOver:', this.gameOver);
         console.log('currentDay:', this.currentDay);
+
+        function showExpensesBreakdown() {
+         if (game) {
+        game.showExpensesBreakdown();
+     }
+        }
         
         // Daily expenses
         this.dailyExpenses = {
@@ -354,8 +359,10 @@ class SushiGame {
         return Object.values(this.dailyExpenses).reduce((sum, expense) => sum + expense, 0);
     }
     
+    
+
     updateTime() {
-        console.log('updateTime called - isPaused:', this.isPaused, 'gameOver:', this.gameOver, 'timeLeft:', this.timeLeft);
+    
         
         if (!this.isPaused && !this.gameOver) {
             this.timeLeft -= 16; // 16ms per frame
