@@ -13,8 +13,29 @@
             <div id="headerButtons">
                 <button class="pixel-btn shop" onclick="openModal('shopModal')">SHOP</button>
                 <button class="pixel-btn tutorial" onclick="openModal('tutorialModal')">TUTORIAL</button>
+                <button class="pixel-btn" onclick="showExpensesBreakdown()">EXPENSES</button>
                 <button class="pixel-btn" onclick="saveGame()">SAVE</button>
                 <button class="pixel-btn" onclick="loadGame()">LOAD</button>
+            </div>
+        </div>
+        
+        <!-- Game Status Bar -->
+        <div id="gameStatus">
+            <div class="status-item">
+                <span class="status-label">📅 DAY:</span>
+                <span id="dayCounter" class="status-value">1</span>
+            </div>
+    <div class="status-item">
+        <span class="status-label">⏰ TIME LEFT:</span>
+        <span id="timeLeft" class="status-value">10:00</span>
+    </div>
+            <div class="status-item">
+                <span class="status-label">💰 MONEY:</span>
+                <span id="money" class="status-value">$100</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">💸 DAILY EXPENSES:</span>
+                <span id="dailyExpenses" class="status-value">$115</span>
             </div>
         </div>
         
@@ -24,10 +45,6 @@
             </div>
             
             <div id="sidebar">
-                <div class="panel">
-                    <div id="money">💰 MONEY: $100</div>
-                </div>
-                
                 <div class="panel">
                     <h3>📦 INVENTORY</h3>
                     <div id="inventoryItems" class="inventory-grid"></div>
@@ -58,6 +75,19 @@
         <div class="modal-content">
             <span class="close" onclick="closeModal('tutorialModal')">&times;</span>
             <h3 style="text-align: center; color: #ffd700; margin-bottom: 20px;">📚 TUTORIAL</h3>
+            
+            <div class="tutorial-step">
+                <h4>💡 GAME OBJECTIVE</h4>
+                <p>Survive as many days as possible! Each day costs $115 in expenses. Make enough money each day to stay in business!</p>
+            </div>
+            
+            <div class="tutorial-step">
+                <h4>📅 DAY SYSTEM</h4>
+                <p>• Each day lasts 10 minutes<br>
+                • Daily expenses: Rent ($50), Electricity ($15), Gas ($10), Water ($8), Insurance ($12), Supplies ($20)<br>
+                • You must have enough money at day's end to pay expenses<br>
+                • If you can't pay, it's game over!</p>
+            </div>
             
             <div class="tutorial-step">
                 <h4>🔄 PROCESSING CHAIN</h4>
@@ -92,7 +122,8 @@
                 <p><strong>Salmon Nigiri:</strong> Cooked Salmon + Cooked Rice<br>
                 <strong>Tuna Roll:</strong> Cooked Tuna + Cooked Rice + Nori<br>
                 <strong>California Roll:</strong> Chopped Cucumber + Chopped Avocado + Cooked Rice + Nori<br>
-                <strong>Dragon Roll:</strong> Cooked Eel + Chopped Avocado + Cooked Rice + Nori</p>
+                <strong>Dragon Roll:</strong> Cooked Eel + Chopped Avocado + Cooked Rice + Nori<br>
+                <em>...and many more! Experiment with different combinations!</em></p>
             </div>
         </div>
     </div>

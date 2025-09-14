@@ -12,6 +12,30 @@ class SushiGame {
         this.inventoryArea = { x: 0, y: 0, width: 800, height: 40 };
         this.canvasTooltip = null;
         
+        // Day/Time system
+        this.currentDay = 1;
+        this.timeLeft = 600000; // 10 minutes in milliseconds
+        this.dayDuration = 600000; // 10 minutes
+        this.isPaused = false;
+        this.gameOver = false;
+        
+        // Debug logging
+        console.log('Game initialized with:');
+        console.log('timeLeft:', this.timeLeft);
+        console.log('isPaused:', this.isPaused);
+        console.log('gameOver:', this.gameOver);
+        console.log('currentDay:', this.currentDay);
+        
+        // Daily expenses
+        this.dailyExpenses = {
+            rent: 50,
+            electricity: 15,
+            gas: 10,
+            water: 8,
+            insurance: 12,
+            supplies: 20
+        };
+        
         // Add texture loading
         this.textures = {};
         this.texturesLoaded = false;
@@ -23,27 +47,77 @@ class SushiGame {
         this.ctx.imageSmoothingEnabled = false;
         
         this.shopItems = [
+            // Fish & Seafood
             { id: 'salmon', name: '🐟 Salmon', price: 10, emoji: '🐟' },
             { id: 'tuna', name: '🐟 Tuna', price: 12, emoji: '🐟' },
             { id: 'eel', name: '🦎 Eel', price: 15, emoji: '🦎' },
+            { id: 'shrimp', name: '🦐 Shrimp', price: 8, emoji: '🦐' },
+            { id: 'crab', name: '🦀 Crab', price: 18, emoji: '🦀' },
+            { id: 'yellowtail', name: '🐠 Yellowtail', price: 14, emoji: '🐠' },
+            { id: 'mackerel', name: '🐟 Mackerel', price: 9, emoji: '🐟' },
+            { id: 'sea_bass', name: '🐟 Sea Bass', price: 11, emoji: '🐟' },
+            
+            // Base ingredients
             { id: 'rice', name: '🍚 Rice', price: 5, emoji: '🍚' },
             { id: 'nori', name: '🟫 Nori', price: 3, emoji: '🟫' },
+            { id: 'wasabi', name: '🟢 Wasabi', price: 6, emoji: '🟢' },
+            { id: 'soy_sauce', name: '🟤 Soy Sauce', price: 4, emoji: '🟤' },
+            { id: 'ginger', name: '🫚 Ginger', price: 5, emoji: '🫚' },
+            
+            // Vegetables
             { id: 'cucumber', name: '🥒 Cucumber', price: 2, emoji: '🥒' },
-            { id: 'avocado', name: '🥑 Avocado', price: 4, emoji: '🥑' }
+            { id: 'avocado', name: '🥑 Avocado', price: 4, emoji: '🥑' },
+            { id: 'carrot', name: '🥕 Carrot', price: 2, emoji: '🥕' },
+            { id: 'radish', name: '🔴 Radish', price: 3, emoji: '🔴' },
+            { id: 'asparagus', name: '🥬 Asparagus', price: 5, emoji: '🥬' },
+            { id: 'scallion', name: '🧅 Scallion', price: 2, emoji: '🧅' },
+            
+            // Special ingredients
+            { id: 'sesame_seeds', name: '⚪ Sesame Seeds', price: 3, emoji: '⚪' },
+            { id: 'tempura_batter', name: '🥄 Tempura Batter', price: 7, emoji: '🥄' },
+            { id: 'cream_cheese', name: '🧀 Cream Cheese', price: 6, emoji: '🧀' },
+            { id: 'spicy_mayo', name: '🌶️ Spicy Mayo', price: 5, emoji: '🌶️' }
         ];
         
         this.recipes = {
+            // Basic Nigiri
             'salmon_nigiri': {
                 ingredients: ['cooked_salmon', 'cooked_rice'],
                 combineTime: 2000,
                 sellPrice: 25,
                 name: 'Salmon Nigiri'
             },
+            'tuna_nigiri': {
+                ingredients: ['cooked_tuna', 'cooked_rice'],
+                combineTime: 2000,
+                sellPrice: 28,
+                name: 'Tuna Nigiri'
+            },
+            'shrimp_nigiri': {
+                ingredients: ['cooked_shrimp', 'cooked_rice'],
+                combineTime: 2000,
+                sellPrice: 22,
+                name: 'Shrimp Nigiri'
+            },
+            'yellowtail_nigiri': {
+                ingredients: ['cooked_yellowtail', 'cooked_rice'],
+                combineTime: 2000,
+                sellPrice: 30,
+                name: 'Yellowtail Nigiri'
+            },
+            
+            // Basic Rolls
             'tuna_roll': {
                 ingredients: ['cooked_tuna', 'cooked_rice', 'nori'],
                 combineTime: 3000,
                 sellPrice: 30,
                 name: 'Tuna Roll'
+            },
+            'salmon_roll': {
+                ingredients: ['cooked_salmon', 'cooked_rice', 'nori'],
+                combineTime: 3000,
+                sellPrice: 28,
+                name: 'Salmon Roll'
             },
             'california_roll': {
                 ingredients: ['chopped_cucumber', 'chopped_avocado', 'cooked_rice', 'nori'],
@@ -56,6 +130,88 @@ class SushiGame {
                 combineTime: 5000,
                 sellPrice: 45,
                 name: 'Dragon Roll'
+            },
+            
+            // Special Rolls
+            'rainbow_roll': {
+                ingredients: ['cooked_salmon', 'cooked_tuna', 'chopped_avocado', 'cooked_rice', 'nori'],
+                combineTime: 6000,
+                sellPrice: 55,
+                name: 'Rainbow Roll'
+            },
+            'spider_roll': {
+                ingredients: ['cooked_crab', 'chopped_cucumber', 'chopped_avocado', 'cooked_rice', 'nori'],
+                combineTime: 5500,
+                sellPrice: 50,
+                name: 'Spider Roll'
+            },
+            'philadelphia_roll': {
+                ingredients: ['cooked_salmon', 'cream_cheese', 'chopped_cucumber', 'cooked_rice', 'nori'],
+                combineTime: 4500,
+                sellPrice: 42,
+                name: 'Philadelphia Roll'
+            },
+            'boston_roll': {
+                ingredients: ['cooked_shrimp', 'chopped_cucumber', 'chopped_avocado', 'cooked_rice', 'nori'],
+                combineTime: 4000,
+                sellPrice: 38,
+                name: 'Boston Roll'
+            },
+            
+            // Tempura Rolls
+            'shrimp_tempura_roll': {
+                ingredients: ['cooked_shrimp', 'tempura_batter', 'chopped_avocado', 'cooked_rice', 'nori'],
+                combineTime: 5000,
+                sellPrice: 48,
+                name: 'Shrimp Tempura Roll'
+            },
+            'vegetable_tempura_roll': {
+                ingredients: ['chopped_asparagus', 'chopped_carrot', 'tempura_batter', 'cooked_rice', 'nori'],
+                combineTime: 4500,
+                sellPrice: 35,
+                name: 'Vegetable Tempura Roll'
+            },
+            
+            // Spicy Rolls
+            'spicy_tuna_roll': {
+                ingredients: ['cooked_tuna', 'spicy_mayo', 'chopped_scallion', 'cooked_rice', 'nori'],
+                combineTime: 4000,
+                sellPrice: 40,
+                name: 'Spicy Tuna Roll'
+            },
+            'spicy_salmon_roll': {
+                ingredients: ['cooked_salmon', 'spicy_mayo', 'chopped_cucumber', 'cooked_rice', 'nori'],
+                combineTime: 4000,
+                sellPrice: 38,
+                name: 'Spicy Salmon Roll'
+            },
+            
+            // Chirashi & Bowls
+            'chirashi_bowl': {
+                ingredients: ['cooked_salmon', 'cooked_tuna', 'cooked_yellowtail', 'cooked_rice', 'chopped_radish'],
+                combineTime: 4500,
+                sellPrice: 65,
+                name: 'Chirashi Bowl'
+            },
+            'poke_bowl': {
+                ingredients: ['cooked_tuna', 'chopped_avocado', 'chopped_cucumber', 'cooked_rice', 'sesame_seeds'],
+                combineTime: 4000,
+                sellPrice: 45,
+                name: 'Poke Bowl'
+            },
+            
+            // Premium Dishes
+            'omakase_platter': {
+                ingredients: ['cooked_salmon', 'cooked_tuna', 'cooked_yellowtail', 'cooked_eel', 'cooked_shrimp', 'cooked_rice'],
+                combineTime: 8000,
+                sellPrice: 85,
+                name: 'Omakase Platter'
+            },
+            'deluxe_sashimi': {
+                ingredients: ['cooked_salmon', 'cooked_tuna', 'cooked_sea_bass', 'chopped_radish', 'wasabi', 'ginger'],
+                combineTime: 6000,
+                sellPrice: 75,
+                name: 'Deluxe Sashimi'
             }
         };
         
@@ -192,39 +348,306 @@ class SushiGame {
             shopGrid.appendChild(shopItem);
         });
     }
+
+    // Day counter system methods
+    getTotalDailyExpenses() {
+        return Object.values(this.dailyExpenses).reduce((sum, expense) => sum + expense, 0);
+    }
+    
+    updateTime() {
+        console.log('updateTime called - isPaused:', this.isPaused, 'gameOver:', this.gameOver, 'timeLeft:', this.timeLeft);
+        
+        if (!this.isPaused && !this.gameOver) {
+            this.timeLeft -= 16; // 16ms per frame
+            
+            if (this.timeLeft <= 0) {
+                console.log('Day ended!');
+                this.endDay();
+            }
+        }
+    }
+    
+    endDay() {
+        this.isPaused = true;
+        const totalExpenses = this.getTotalDailyExpenses();
+        
+        if (this.money >= totalExpenses) {
+            this.money -= totalExpenses;
+            this.currentDay++;
+            this.timeLeft = this.dayDuration;
+            this.showDayEndModal(totalExpenses, false);
+        } else {
+            this.gameOver = true;
+            this.showDayEndModal(totalExpenses, true);
+        }
+        
+        this.saveGame();
+    }
+    
+    showDayEndModal(expenses, isGameOver) {
+        const modal = document.getElementById('dayEndModal') || this.createDayEndModal();
+        const modalContent = modal.querySelector('.day-end-content');
+        
+        if (isGameOver) {
+            modalContent.innerHTML = `
+                <h2>🚨 GAME OVER 🚨</h2>
+                <div class="expenses-breakdown">
+                    <p><strong>Day ${this.currentDay} Expenses: $${expenses}</strong></p>
+                    <p style="color: #ff4444;">💰 Your Money: $${this.money}</p>
+                    <p style="color: #ff4444;">You couldn't afford the daily expenses!</p>
+                </div>
+                <div class="modal-buttons">
+                    <button onclick="game.restartGame()" class="restart-btn">🔄 Restart Game</button>
+                    <button onclick="closeModal('dayEndModal')" class="continue-btn">📊 View Stats</button>
+                </div>
+            `;
+        } else {
+            modalContent.innerHTML = `
+                <h2>📅 End of Day ${this.currentDay - 1}</h2>
+                <div class="expenses-breakdown">
+                    <h3>Daily Expenses Paid:</h3>
+                    <div class="expense-item">🏠 Rent: $${this.dailyExpenses.rent}</div>
+                    <div class="expense-item">⚡ Electricity: $${this.dailyExpenses.electricity}</div>
+                    <div class="expense-item">🔥 Gas: $${this.dailyExpenses.gas}</div>
+                    <div class="expense-item">💧 Water: $${this.dailyExpenses.water}</div>
+                    <div class="expense-item">🛡️ Insurance: $${this.dailyExpenses.insurance}</div>
+                    <div class="expense-item">📦 Supplies: $${this.dailyExpenses.supplies}</div>
+                    <hr>
+                    <div class="total-expense"><strong>Total: $${expenses}</strong></div>
+                </div>
+                <div class="day-summary">
+                    <p>💰 Money Remaining: $${this.money}</p>
+                    <p>🌅 Starting Day ${this.currentDay}</p>
+                    <p>💡 Tip: You need at least $${this.getTotalDailyExpenses()} each day to stay in business!</p>
+                </div>
+                <div class="modal-buttons">
+                    <button onclick="game.continueToNextDay()" class="continue-btn">▶️ Continue to Day ${this.currentDay}</button>
+                </div>
+            `;
+        }
+        
+        modal.style.display = 'block';
+    }
+    
+    createDayEndModal() {
+        const modal = document.createElement('div');
+        modal.id = 'dayEndModal';
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content day-end-modal">
+                <div class="day-end-content">
+                    <!-- Content will be dynamically generated -->
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        // Add CSS styles
+        const style = document.createElement('style');
+        style.textContent = `
+            .day-end-modal {
+                max-width: 500px;
+                padding: 20px;
+                background: linear-gradient(135deg, #667db6 0%, #0082c8 100%);
+                border: 3px solid #ffd700;
+            }
+            
+            .day-end-content h2 {
+                color: #ffd700;
+                text-align: center;
+                margin-bottom: 20px;
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            }
+            
+            .expenses-breakdown {
+                background: rgba(0,0,0,0.3);
+                padding: 15px;
+                border-radius: 8px;
+                margin-bottom: 15px;
+            }
+            
+            .expenses-breakdown h3 {
+                color: #ffd700;
+                margin-bottom: 10px;
+            }
+            
+            .expense-item {
+                display: flex;
+                justify-content: space-between;
+                padding: 5px 0;
+                color: #fff;
+                border-bottom: 1px solid rgba(255,255,255,0.2);
+            }
+            
+            .total-expense {
+                margin-top: 10px;
+                padding-top: 10px;
+                color: #ffd700;
+                font-size: 18px;
+            }
+            
+            .day-summary {
+                background: rgba(0,0,0,0.2);
+                padding: 15px;
+                border-radius: 8px;
+                color: #fff;
+                margin-bottom: 15px;
+            }
+            
+            .modal-buttons {
+                display: flex;
+                gap: 10px;
+                justify-content: center;
+            }
+            
+            .continue-btn, .restart-btn {
+                padding: 12px 24px;
+                border: none;
+                border-radius: 6px;
+                font-size: 16px;
+                font-weight: bold;
+                cursor: pointer;
+                transition: transform 0.2s;
+            }
+            
+            .continue-btn {
+                background: #4caf50;
+                color: white;
+            }
+            
+            .restart-btn {
+                background: #f44336;
+                color: white;
+            }
+            
+            .continue-btn:hover, .restart-btn:hover {
+                transform: scale(1.05);
+            }
+        `;
+        document.head.appendChild(style);
+        
+        return modal;
+    }
+    
+    continueToNextDay() {
+        closeModal('dayEndModal');
+        this.isPaused = false;
+    }
+    
+    restartGame() {
+        this.money = 100;
+        this.currentDay = 1;
+        this.timeLeft = this.dayDuration;
+        this.gameOver = false;
+        this.isPaused = false;
+        this.inventory = {};
+        this.orders = [];
+        this.nextOrderId = 1;
+        this.gameObjects = this.gameObjects.filter(obj => obj.type === 'workstation');
+        this.updateUI();
+        this.updateOrdersUI();
+        closeModal('dayEndModal');
+        this.saveGame();
+    }
+
+    showExpensesBreakdown() {
+        const breakdown = Object.entries(this.dailyExpenses)
+            .map(([key, value]) => {
+                const icons = {
+                    rent: '🏠',
+                    electricity: '⚡',
+                    gas: '🔥',
+                    water: '💧',
+                    insurance: '🛡️',
+                    supplies: '📦'
+                };
+                return `${icons[key]} ${key.charAt(0).toUpperCase() + key.slice(1)}: $${value}`;
+            })
+            .join('\n');
+        
+        alert(`Daily Expenses Breakdown:\n\n${breakdown}\n\nTotal: $${this.getTotalDailyExpenses()}\n\nMake sure you earn enough each day to cover these costs!`);
+    }
     
     getItemDescription(itemName) {
         const descriptions = {
-            // Raw ingredients
-            'salmon': 'Raw salmon fish - needs washing and cooking',
-            'tuna': 'Raw tuna fish - needs washing and cooking',
-            'eel': 'Raw eel - needs washing and cooking',
+            // Raw fish
+            'salmon': 'Raw salmon fish - needs washing and chopping, then cooking',
+            'tuna': 'Raw tuna fish - needs washing and chopping, then cooking',
+            'eel': 'Raw eel - needs washing, then cooking',
+            'shrimp': 'Raw shrimp - needs washing, then cooking',
+            'crab': 'Raw crab - needs washing, then cooking',
+            'yellowtail': 'Raw yellowtail fish - needs washing and chopping, then cooking',
+            'mackerel': 'Raw mackerel fish - needs washing and chopping, then cooking',
+            'sea_bass': 'Raw sea bass fish - needs washing and chopping, then cooking',
+            
+            // Base ingredients
             'rice': 'Uncooked rice - needs cooking',
             'nori': 'Seaweed sheets - ready to use',
+            'wasabi': 'Japanese horseradish - ready to use',
+            'soy_sauce': 'Fermented soy sauce - ready to use',
+            'ginger': 'Fresh ginger root - needs washing, peeling, and chopping',
+            
+            // Raw vegetables
             'cucumber': 'Fresh cucumber - needs washing, peeling, and chopping',
             'avocado': 'Fresh avocado - needs washing, peeling, and chopping',
+            'carrot': 'Fresh carrot - needs washing, peeling, and chopping',
+            'radish': 'Fresh radish - needs washing, peeling, and chopping',
+            'asparagus': 'Fresh asparagus - needs washing and chopping',
+            'scallion': 'Green onions - needs washing and chopping',
+            
+            // Special ingredients
+            'sesame_seeds': 'Toasted sesame seeds - ready to use',
+            'tempura_batter': 'Light crispy batter - ready to use',
+            'cream_cheese': 'Philadelphia-style cream cheese - ready to use',
+            'spicy_mayo': 'Spicy mayonnaise sauce - ready to use',
             
             // Washed ingredients
             'washed_salmon': 'Clean salmon - ready for chopping',
             'washed_tuna': 'Clean tuna - ready for chopping',
             'washed_eel': 'Clean eel - ready for cooking',
+            'washed_shrimp': 'Clean shrimp - ready for cooking',
+            'washed_crab': 'Clean crab - ready for cooking',
+            'washed_yellowtail': 'Clean yellowtail - ready for chopping',
+            'washed_mackerel': 'Clean mackerel - ready for chopping',
+            'washed_sea_bass': 'Clean sea bass - ready for chopping',
             'washed_cucumber': 'Clean cucumber - needs peeling',
             'washed_avocado': 'Clean avocado - needs peeling',
+            'washed_carrot': 'Clean carrot - needs peeling',
+            'washed_radish': 'Clean radish - needs peeling',
+            'washed_ginger': 'Clean ginger - needs peeling',
+            'washed_asparagus': 'Clean asparagus - ready for chopping',
+            'washed_scallion': 'Clean scallions - ready for chopping',
             
             // Peeled ingredients
             'peeled_cucumber': 'Peeled cucumber - ready for chopping',
             'peeled_avocado': 'Peeled avocado - ready for chopping',
+            'peeled_carrot': 'Peeled carrot - ready for chopping',
+            'peeled_radish': 'Peeled radish - ready for chopping',
+            'peeled_ginger': 'Peeled ginger - ready for chopping',
             
             // Chopped ingredients
             'chopped_salmon': 'Chopped salmon - ready for cooking',
             'chopped_tuna': 'Chopped tuna - ready for cooking',
+            'chopped_yellowtail': 'Chopped yellowtail - ready for cooking',
+            'chopped_mackerel': 'Chopped mackerel - ready for cooking',
+            'chopped_sea_bass': 'Chopped sea bass - ready for cooking',
             'chopped_cucumber': 'Diced cucumber - ready for combining',
             'chopped_avocado': 'Diced avocado - ready for combining',
+            'chopped_carrot': 'Diced carrot - ready for combining',
+            'chopped_radish': 'Diced radish - ready for combining',
+            'chopped_ginger': 'Minced ginger - ready for combining',
+            'chopped_asparagus': 'Cut asparagus - ready for combining',
+            'chopped_scallion': 'Sliced scallions - ready for combining',
             
             // Cooked ingredients
             'cooked_salmon': 'Perfectly cooked salmon - ready for sushi',
-            'cooked_tuna': 'Perfectly cooked tuna - ready for sushi',
-            'cooked_eel': 'Grilled eel - ready for sushi',
+            'cooked_tuna': 'Perfectly seared tuna - ready for sushi',
+            'cooked_eel': 'Glazed grilled eel - ready for sushi',
+            'cooked_shrimp': 'Boiled shrimp - ready for sushi',
+            'cooked_crab': 'Steamed crab meat - ready for sushi',
+            'cooked_yellowtail': 'Grilled yellowtail - ready for sushi',
+            'cooked_mackerel': 'Grilled mackerel - ready for sushi',
+            'cooked_sea_bass': 'Pan-seared sea bass - ready for sushi',
             'cooked_rice': 'Seasoned sushi rice - ready for combining'
         };
         
@@ -233,13 +656,36 @@ class SushiGame {
     
     getProcessingSteps(itemName) {
         const processSteps = {
+            // Fish processing
             'salmon': 'Raw Salmon → WASH → CHOP → COOK',
             'tuna': 'Raw Tuna → WASH → CHOP → COOK',
             'eel': 'Raw Eel → WASH → COOK',
+            'shrimp': 'Raw Shrimp → WASH → COOK',
+            'crab': 'Raw Crab → WASH → COOK',
+            'yellowtail': 'Raw Yellowtail → WASH → CHOP → COOK',
+            'mackerel': 'Raw Mackerel → WASH → CHOP → COOK',
+            'sea_bass': 'Raw Sea Bass → WASH → CHOP → COOK',
+            
+            // Base ingredients
+            'rice': 'Raw Rice → COOK',
+            'nori': 'Nori → Ready to use',
+            'wasabi': 'Wasabi → Ready to use',
+            'soy_sauce': 'Soy Sauce → Ready to use',
+            'ginger': 'Raw Ginger → WASH → PEEL → CHOP',
+            
+            // Vegetables
             'cucumber': 'Raw Cucumber → WASH → PEEL → CHOP',
             'avocado': 'Raw Avocado → WASH → PEEL → CHOP',
-            'rice': 'Raw Rice → COOK',
-            'nori': 'Nori → Ready to use'
+            'carrot': 'Raw Carrot → WASH → PEEL → CHOP',
+            'radish': 'Raw Radish → WASH → PEEL → CHOP',
+            'asparagus': 'Raw Asparagus → WASH → CHOP',
+            'scallion': 'Raw Scallion → WASH → CHOP',
+            
+            // Special ingredients
+            'sesame_seeds': 'Sesame Seeds → Ready to use',
+            'tempura_batter': 'Tempura Batter → Ready to use',
+            'cream_cheese': 'Cream Cheese → Ready to use',
+            'spicy_mayo': 'Spicy Mayo → Ready to use'
         };
         
         return processSteps[itemName] || 'Processing steps unknown';
@@ -247,13 +693,32 @@ class SushiGame {
     
     getRecipeProcess(recipeKey) {
         const processes = {
+            // Basic Nigiri
             'salmon_nigiri': {
                 process: '1. Salmon: RAW → WASH → CHOP → COOK\n2. Rice: RAW → COOK\n3. PREP: Combine both ingredients',
                 ingredients: 'Cooked Salmon + Cooked Rice'
             },
+            'tuna_nigiri': {
+                process: '1. Tuna: RAW → WASH → CHOP → COOK\n2. Rice: RAW → COOK\n3. PREP: Combine both ingredients',
+                ingredients: 'Cooked Tuna + Cooked Rice'
+            },
+            'shrimp_nigiri': {
+                process: '1. Shrimp: RAW → WASH → COOK\n2. Rice: RAW → COOK\n3. PREP: Combine both ingredients',
+                ingredients: 'Cooked Shrimp + Cooked Rice'
+            },
+            'yellowtail_nigiri': {
+                process: '1. Yellowtail: RAW → WASH → CHOP → COOK\n2. Rice: RAW → COOK\n3. PREP: Combine both ingredients',
+                ingredients: 'Cooked Yellowtail + Cooked Rice'
+            },
+            
+            // Basic Rolls
             'tuna_roll': {
                 process: '1. Tuna: RAW → WASH → CHOP → COOK\n2. Rice: RAW → COOK\n3. Get Nori from shop\n4. PREP: Combine all ingredients',
                 ingredients: 'Cooked Tuna + Cooked Rice + Nori'
+            },
+            'salmon_roll': {
+                process: '1. Salmon: RAW → WASH → CHOP → COOK\n2. Rice: RAW → COOK\n3. Get Nori from shop\n4. PREP: Combine all ingredients',
+                ingredients: 'Cooked Salmon + Cooked Rice + Nori'
             },
             'california_roll': {
                 process: '1. Cucumber: RAW → WASH → PEEL → CHOP\n2. Avocado: RAW → WASH → PEEL → CHOP\n3. Rice: RAW → COOK\n4. Get Nori from shop\n5. PREP: Combine all ingredients',
@@ -262,6 +727,64 @@ class SushiGame {
             'dragon_roll': {
                 process: '1. Eel: RAW → WASH → COOK\n2. Avocado: RAW → WASH → PEEL → CHOP\n3. Rice: RAW → COOK\n4. Get Nori from shop\n5. PREP: Combine all ingredients',
                 ingredients: 'Cooked Eel + Chopped Avocado + Cooked Rice + Nori'
+            },
+            
+            // Special Rolls
+            'rainbow_roll': {
+                process: '1. Salmon: RAW → WASH → CHOP → COOK\n2. Tuna: RAW → WASH → CHOP → COOK\n3. Avocado: RAW → WASH → PEEL → CHOP\n4. Rice: RAW → COOK\n5. Get Nori from shop\n6. PREP: Combine all ingredients',
+                ingredients: 'Cooked Salmon + Cooked Tuna + Chopped Avocado + Cooked Rice + Nori'
+            },
+            'spider_roll': {
+                process: '1. Crab: RAW → WASH → COOK\n2. Cucumber: RAW → WASH → PEEL → CHOP\n3. Avocado: RAW → WASH → PEEL → CHOP\n4. Rice: RAW → COOK\n5. Get Nori from shop\n6. PREP: Combine all ingredients',
+                ingredients: 'Cooked Crab + Chopped Cucumber + Chopped Avocado + Cooked Rice + Nori'
+            },
+            'philadelphia_roll': {
+                process: '1. Salmon: RAW → WASH → CHOP → COOK\n2. Cucumber: RAW → WASH → PEEL → CHOP\n3. Rice: RAW → COOK\n4. Get Cream Cheese and Nori from shop\n5. PREP: Combine all ingredients',
+                ingredients: 'Cooked Salmon + Cream Cheese + Chopped Cucumber + Cooked Rice + Nori'
+            },
+            'boston_roll': {
+                process: '1. Shrimp: RAW → WASH → COOK\n2. Cucumber: RAW → WASH → PEEL → CHOP\n3. Avocado: RAW → WASH → PEEL → CHOP\n4. Rice: RAW → COOK\n5. Get Nori from shop\n6. PREP: Combine all ingredients',
+                ingredients: 'Cooked Shrimp + Chopped Cucumber + Chopped Avocado + Cooked Rice + Nori'
+            },
+            
+            // Tempura Rolls
+            'shrimp_tempura_roll': {
+                process: '1. Shrimp: RAW → WASH → COOK\n2. Avocado: RAW → WASH → PEEL → CHOP\n3. Rice: RAW → COOK\n4. Get Tempura Batter and Nori from shop\n5. PREP: Combine all ingredients',
+                ingredients: 'Cooked Shrimp + Tempura Batter + Chopped Avocado + Cooked Rice + Nori'
+            },
+            'vegetable_tempura_roll': {
+                process: '1. Asparagus: RAW → WASH → CHOP\n2. Carrot: RAW → WASH → PEEL → CHOP\n3. Rice: RAW → COOK\n4. Get Tempura Batter and Nori from shop\n5. PREP: Combine all ingredients',
+                ingredients: 'Chopped Asparagus + Chopped Carrot + Tempura Batter + Cooked Rice + Nori'
+            },
+            
+            // Spicy Rolls
+            'spicy_tuna_roll': {
+                process: '1. Tuna: RAW → WASH → CHOP → COOK\n2. Scallion: RAW → WASH → CHOP\n3. Rice: RAW → COOK\n4. Get Spicy Mayo and Nori from shop\n5. PREP: Combine all ingredients',
+                ingredients: 'Cooked Tuna + Spicy Mayo + Chopped Scallion + Cooked Rice + Nori'
+            },
+            'spicy_salmon_roll': {
+                process: '1. Salmon: RAW → WASH → CHOP → COOK\n2. Cucumber: RAW → WASH → PEEL → CHOP\n3. Rice: RAW → COOK\n4. Get Spicy Mayo and Nori from shop\n5. PREP: Combine all ingredients',
+                ingredients: 'Cooked Salmon + Spicy Mayo + Chopped Cucumber + Cooked Rice + Nori'
+            },
+            
+            // Bowls
+            'chirashi_bowl': {
+                process: '1. Salmon: RAW → WASH → CHOP → COOK\n2. Tuna: RAW → WASH → CHOP → COOK\n3. Yellowtail: RAW → WASH → CHOP → COOK\n4. Radish: RAW → WASH → PEEL → CHOP\n5. Rice: RAW → COOK\n6. PREP: Combine all ingredients',
+                ingredients: 'Cooked Salmon + Cooked Tuna + Cooked Yellowtail + Cooked Rice + Chopped Radish'
+            },
+            'poke_bowl': {
+                process: '1. Tuna: RAW → WASH → CHOP → COOK\n2. Avocado: RAW → WASH → PEEL → CHOP\n3. Cucumber: RAW → WASH → PEEL → CHOP\n4. Rice: RAW → COOK\n5. Get Sesame Seeds from shop\n6. PREP: Combine all ingredients',
+                ingredients: 'Cooked Tuna + Chopped Avocado + Chopped Cucumber + Cooked Rice + Sesame Seeds'
+            },
+            
+            // Premium Dishes
+            'omakase_platter': {
+                process: '1. Salmon: RAW → WASH → CHOP → COOK\n2. Tuna: RAW → WASH → CHOP → COOK\n3. Yellowtail: RAW → WASH → CHOP → COOK\n4. Eel: RAW → WASH → COOK\n5. Shrimp: RAW → WASH → COOK\n6. Rice: RAW → COOK\n7. PREP: Combine all ingredients',
+                ingredients: 'Cooked Salmon + Cooked Tuna + Cooked Yellowtail + Cooked Eel + Cooked Shrimp + Cooked Rice'
+            },
+            'deluxe_sashimi': {
+                process: '1. Salmon: RAW → WASH → CHOP → COOK\n2. Tuna: RAW → WASH → CHOP → COOK\n3. Sea Bass: RAW → WASH → CHOP → COOK\n4. Radish: RAW → WASH → PEEL → CHOP\n5. Get Wasabi and Ginger from shop\n6. PREP: Combine all ingredients',
+                ingredients: 'Cooked Salmon + Cooked Tuna + Cooked Sea Bass + Chopped Radish + Wasabi + Ginger'
             }
         };
         
@@ -326,9 +849,37 @@ class SushiGame {
             y: e.clientY - rect.top
         };
     }
+
+    // Prep station click handler
+    handlePrepStationClick(workstation, mousePos) {
+        if (workstation.name === 'prep' && workstation.ingredients.length > 0 && workstation.cooldown === 0) {
+            // Remove the last ingredient added
+            const lastIngredient = workstation.ingredients.pop();
+            
+            // Spawn it back as an ingredient object
+            const ingredient = {
+                type: 'ingredient',
+                name: lastIngredient,
+                x: mousePos.x - 17, // Center on mouse
+                y: mousePos.y - 17,
+                width: 35,
+                height: 35,
+                color: this.getIngredientColor(lastIngredient)
+            };
+            
+            this.gameObjects.push(ingredient);
+        }
+    }
     
     handleMouseDown(e) {
         this.mousePos = this.getMousePos(e);
+        
+        // Check if clicking on a prep station first
+        const clickedWorkstation = this.getWorkstationAt(this.mousePos);
+        if (clickedWorkstation && clickedWorkstation.name === 'prep' && clickedWorkstation.ingredients.length > 0) {
+            this.handlePrepStationClick(clickedWorkstation, this.mousePos);
+            return;
+        }
         
         for (let i = this.gameObjects.length - 1; i >= 0; i--) {
             const obj = this.gameObjects[i];
@@ -350,18 +901,49 @@ class SushiGame {
             this.draggedObject.y = this.mousePos.y - this.draggedObject.height / 2;
             this.hideCanvasTooltip();
         } else {
-            // Check for hover over items
+            // Check for hover over items or workstations
             let hoveredItem = null;
-            for (let i = this.gameObjects.length - 1; i >= 0; i--) {
-                const obj = this.gameObjects[i];
-                if ((obj.type === 'ingredient' || obj.type === 'dish') && 
-                    this.isPointInRect(this.mousePos, obj)) {
-                    hoveredItem = obj;
+            let hoveredWorkstation = null;
+            
+            // Check workstations first
+            for (let obj of this.gameObjects) {
+                if (obj.type === 'workstation' && this.isPointInRect(this.mousePos, obj)) {
+                    hoveredWorkstation = obj;
                     break;
                 }
             }
             
-            if (hoveredItem) {
+            // Then check items
+            if (!hoveredWorkstation) {
+                for (let i = this.gameObjects.length - 1; i >= 0; i--) {
+                    const obj = this.gameObjects[i];
+                    if ((obj.type === 'ingredient' || obj.type === 'dish') && 
+                        this.isPointInRect(this.mousePos, obj)) {
+                        hoveredItem = obj;
+                        break;
+                    }
+                }
+            }
+            
+            if (hoveredWorkstation && hoveredWorkstation.name === 'prep' && hoveredWorkstation.ingredients.length > 0) {
+                const rect = this.canvas.getBoundingClientRect();
+                const screenX = e.clientX;
+                const screenY = e.clientY;
+                
+                const ingredientsList = hoveredWorkstation.ingredients.map(ing => 
+                    `• ${ing.replace(/_/g, ' ').toUpperCase()}`
+                ).join('<br>');
+                
+                let tooltipContent = `
+                    <strong>PREP STATION</strong><br>
+                    <strong>Ingredients (${hoveredWorkstation.ingredients.length}):</strong><br>
+                    ${ingredientsList}<br><br>
+                    <strong style="color: #4fc3f7;">Click to remove last ingredient</strong><br>
+                    <em style="color: #ffb74d;">Drop ingredients here to combine into recipes</em>
+                `;
+                
+                this.showCanvasTooltip(screenX, screenY, tooltipContent);
+            } else if (hoveredItem) {
                 const rect = this.canvas.getBoundingClientRect();
                 const screenX = e.clientX;
                 const screenY = e.clientY;
@@ -444,10 +1026,14 @@ class SushiGame {
     
     canProcessAt(itemName, stationName) {
         const processMap = {
-            'wash': ['salmon', 'tuna', 'eel', 'cucumber', 'avocado'],
-            'peel': ['washed_cucumber', 'washed_avocado'],
-            'chop': ['peeled_cucumber', 'peeled_avocado', 'washed_salmon', 'washed_tuna'],
-            'cook': ['rice', 'chopped_salmon', 'chopped_tuna', 'washed_eel']
+            'wash': ['salmon', 'tuna', 'eel', 'shrimp', 'crab', 'yellowtail', 'mackerel', 'sea_bass', 
+                    'cucumber', 'avocado', 'carrot', 'radish', 'asparagus', 'scallion'],
+            'peel': ['washed_cucumber', 'washed_avocado', 'washed_carrot', 'washed_radish', 'washed_ginger'],
+            'chop': ['peeled_cucumber', 'peeled_avocado', 'peeled_carrot', 'peeled_radish', 'peeled_ginger',
+                    'washed_salmon', 'washed_tuna', 'washed_yellowtail', 'washed_mackerel', 'washed_sea_bass',
+                    'washed_asparagus', 'washed_scallion'],
+            'cook': ['rice', 'chopped_salmon', 'chopped_tuna', 'chopped_yellowtail', 'chopped_mackerel', 'chopped_sea_bass',
+                    'washed_eel', 'washed_shrimp', 'washed_crab']
         };
         
         return processMap[stationName]?.includes(itemName) || false;
@@ -480,6 +1066,8 @@ class SushiGame {
             'cook': (name) => {
                 if (name === 'rice') return 'cooked_rice';
                 if (name === 'washed_eel') return 'cooked_eel';
+                if (name === 'washed_shrimp') return 'cooked_shrimp';
+                if (name === 'washed_crab') return 'cooked_crab';
                 return name.replace('chopped_', 'cooked_');
             }
         };
@@ -584,28 +1172,36 @@ class SushiGame {
     
     getIngredientColor(type) {
         const colors = {
-            'salmon': '#ff6b6b',
-            'washed_salmon': '#ff5252',
-            'chopped_salmon': '#ff4444',
-            'cooked_salmon': '#d32f2f',
-            'tuna': '#8b0000',
-            'washed_tuna': '#660000',
-            'chopped_tuna': '#550000',
-            'cooked_tuna': '#330000',
-            'eel': '#4b0082',
-            'washed_eel': '#5e35b1',
-            'cooked_eel': '#7e57c2',
-            'rice': '#f4f4f4',
-            'cooked_rice': '#fff9c4',
+            // Fish colors
+            'salmon': '#ff6b6b', 'washed_salmon': '#ff5252', 'chopped_salmon': '#ff4444', 'cooked_salmon': '#d32f2f',
+            'tuna': '#8b0000', 'washed_tuna': '#660000', 'chopped_tuna': '#550000', 'cooked_tuna': '#330000',
+            'eel': '#4b0082', 'washed_eel': '#5e35b1', 'cooked_eel': '#7e57c2',
+            'shrimp': '#ff9800', 'washed_shrimp': '#f57c00', 'cooked_shrimp': '#ef6c00',
+            'crab': '#f44336', 'washed_crab': '#d32f2f', 'cooked_crab': '#c62828',
+            'yellowtail': '#ffeb3b', 'washed_yellowtail': '#fdd835', 'chopped_yellowtail': '#fbc02d', 'cooked_yellowtail': '#f9a825',
+            'mackerel': '#607d8b', 'washed_mackerel': '#546e7a', 'chopped_mackerel': '#455a64', 'cooked_mackerel': '#37474f',
+            'sea_bass': '#00bcd4', 'washed_sea_bass': '#00acc1', 'chopped_sea_bass': '#0097a7', 'cooked_sea_bass': '#00838f',
+            
+            // Base ingredients
+            'rice': '#f4f4f4', 'cooked_rice': '#fff9c4',
             'nori': '#2d5016',
-            'cucumber': '#4caf50',
-            'washed_cucumber': '#43a047',
-            'peeled_cucumber': '#388e3c',
-            'chopped_cucumber': '#2e7d32',
-            'avocado': '#8bc34a',
-            'washed_avocado': '#7cb342',
-            'peeled_avocado': '#689f38',
-            'chopped_avocado': '#558b2f'
+            'wasabi': '#4caf50',
+            'soy_sauce': '#3e2723',
+            'ginger': '#ff8a65', 'washed_ginger': '#ff7043', 'peeled_ginger': '#ff5722', 'chopped_ginger': '#d84315',
+            
+            // Vegetables
+            'cucumber': '#4caf50', 'washed_cucumber': '#43a047', 'peeled_cucumber': '#388e3c', 'chopped_cucumber': '#2e7d32',
+            'avocado': '#8bc34a', 'washed_avocado': '#7cb342', 'peeled_avocado': '#689f38', 'chopped_avocado': '#558b2f',
+            'carrot': '#ff9800', 'washed_carrot': '#f57c00', 'peeled_carrot': '#ef6c00', 'chopped_carrot': '#e65100',
+            'radish': '#e91e63', 'washed_radish': '#d81b60', 'peeled_radish': '#c2185b', 'chopped_radish': '#ad1457',
+            'asparagus': '#689f38', 'washed_asparagus': '#558b2f', 'chopped_asparagus': '#33691e',
+            'scallion': '#4caf50', 'washed_scallion': '#43a047', 'chopped_scallion': '#388e3c',
+            
+            // Special ingredients
+            'sesame_seeds': '#f5f5f5',
+            'tempura_batter': '#fff3e0',
+            'cream_cheese': '#fffde7',
+            'spicy_mayo': '#ffccbc'
         };
         return colors[type] || '#888';
     }
@@ -624,45 +1220,45 @@ class SushiGame {
     
     getItemEmoji(type) {
         const emojis = {
-            // Base ingredients
-            'salmon': '🐟',
-            'tuna': '🐟', 
-            'eel': '🦎',
-            'rice': '🍚',
-            'nori': '🟫',
-            'cucumber': '🥒',
-            'avocado': '🥑',
-            
-            // Washed ingredients
-            'washed_salmon': '🐟',
-            'washed_tuna': '🐟',
-            'washed_eel': '🦎',
-            'washed_cucumber': '🥒',
-            'washed_avocado': '🥑',
-            
-            // Peeled ingredients
-            'peeled_cucumber': '🥒',
-            'peeled_avocado': '🥑',
-            
-            // Chopped ingredients
-            'chopped_salmon': '🔪',
-            'chopped_tuna': '🔪',
-            'chopped_cucumber': '🔪',
-            'chopped_avocado': '🔪',
-            
-            // Cooked ingredients
-            'cooked_salmon': '🍣',
-            'cooked_tuna': '🍣',
-            'cooked_eel': '🍣',
-            'cooked_rice': '🍚',
-            
-            // Dishes
-            'Salmon Nigiri': '🍣',
-            'Tuna Roll': '🍙',
-            'California Roll': '🍱',
-            'Dragon Roll': '🐉'
-        };
-        return emojis[type] || '📦';
+        // Fish
+        'salmon': '🐟', 'washed_salmon': '🐟', 'chopped_salmon': '🔪', 'cooked_salmon': '🍣',
+        'tuna': '🐟', 'washed_tuna': '🐟', 'chopped_tuna': '🔪', 'cooked_tuna': '🍣',
+        'eel': '🦎', 'washed_eel': '🦎', 'cooked_eel': '🍣',
+        'shrimp': '🦐', 'washed_shrimp': '🦐', 'cooked_shrimp': '🍤',
+        'crab': '🦀', 'washed_crab': '🦀', 'cooked_crab': '🦀',
+        'yellowtail': '🐠', 'washed_yellowtail': '🐠', 'chopped_yellowtail': '🔪', 'cooked_yellowtail': '🍣',
+        'mackerel': '🐟', 'washed_mackerel': '🐟', 'chopped_mackerel': '🔪', 'cooked_mackerel': '🍣',
+        'sea_bass': '🐟', 'washed_sea_bass': '🐟', 'chopped_sea_bass': '🔪', 'cooked_sea_bass': '🍣',
+        
+        // Base ingredients
+        'rice': '🍚', 'cooked_rice': '🍚',
+        'nori': '🟫',
+        'wasabi': '🟢',
+        'soy_sauce': '🟤',
+        'ginger': '🫚', 'washed_ginger': '🫚', 'peeled_ginger': '🫚', 'chopped_ginger': '🔪',
+        
+        // Vegetables
+        'cucumber': '🥒', 'washed_cucumber': '🥒', 'peeled_cucumber': '🥒', 'chopped_cucumber': '🔪',
+        'avocado': '🥑', 'washed_avocado': '🥑', 'peeled_avocado': '🥑', 'chopped_avocado': '🔪',
+        'carrot': '🥕', 'washed_carrot': '🥕', 'peeled_carrot': '🥕', 'chopped_carrot': '🔪',
+        'radish': '🔴', 'washed_radish': '🔴', 'peeled_radish': '🔴', 'chopped_radish': '🔪',
+        'asparagus': '🥬', 'washed_asparagus': '🥬', 'chopped_asparagus': '🔪',
+        'scallion': '🧅', 'washed_scallion': '🧅', 'chopped_scallion': '🔪',
+        
+        // Special ingredients
+        'sesame_seeds': '⚪',
+        'tempura_batter': '🥄',
+        'cream_cheese': '🧀',
+        'spicy_mayo': '🌶️',
+        
+        // Dishes
+        'Salmon Nigiri': '🍣', 'Tuna Nigiri': '🍣', 'Shrimp Nigiri': '🍣', 'Yellowtail Nigiri': '🍣',
+        'Tuna Roll': '🍙', 'Salmon Roll': '🍙', 'California Roll': '🍱', 'Dragon Roll': '🐉',
+        'Rainbow Roll': '🌈', 'Spider Roll': '🕷️', 'Philadelphia Roll': '🧀', 'Boston Roll': '🦐',
+        'Shrimp Tempura Roll': '🍤', 'Vegetable Tempura Roll': '🥬', 'Spicy Tuna Roll': '🌶️', 'Spicy Salmon Roll': '🌶️',
+        'Chirashi Bowl': '🍱', 'Poke Bowl': '🥗', 'Omakase Platter': '🍽️', 'Deluxe Sashimi': '🍣'
+    };
+    return emojis[type] || '📦';
     }
     
     startOrderGeneration() {
@@ -1101,12 +1697,15 @@ class SushiGame {
         });
     }
     
-    gameLoop() {
-        this.updateCooldowns();
-        this.updateOrders();
-        this.render();
-        requestAnimationFrame(() => this.gameLoop());
+gameLoop() {
+    if (!this.gameOver) {
+        this.updateTime();        // Update the day timer
+        this.updateCooldowns();   // Update workstation cooldowns
+        this.updateOrders();      // Update order timers
     }
+    this.render();                // Render the game
+    requestAnimationFrame(() => this.gameLoop());
+}
 }
 
 // Global functions

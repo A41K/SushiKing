@@ -426,3 +426,165 @@
     border-color: rgba(129, 199, 132, 0.3);
     transform: scale(1.05);
 }
+
+/* Game Status Bar */
+#gameStatus {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: rgba(0,0,0,0.8);
+    padding: 12px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    border: 2px solid #ffd700;
+}
+
+.status-item {
+    text-align: center;
+    font-family: 'Courier New', monospace;
+}
+
+.status-label {
+    display: block;
+    font-size: 10px;
+    color: #bbb;
+    margin-bottom: 2px;
+}
+
+.status-value {
+    display: block;
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffd700;
+}
+
+/* Day End Modal Styles */
+.day-end-modal {
+    max-width: 500px;
+    padding: 20px;
+    background: linear-gradient(135deg, #667db6 0%, #0082c8 100%);
+    border: 3px solid #ffd700;
+    border-radius: 12px;
+}
+
+.day-end-content h2 {
+    color: #ffd700;
+    text-align: center;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    font-size: 24px;
+}
+
+.expenses-breakdown {
+    background: rgba(0,0,0,0.3);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.expenses-breakdown h3 {
+    color: #ffd700;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.expense-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    color: #fff;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    font-size: 14px;
+}
+
+.total-expense {
+    margin-top: 10px;
+    padding-top: 10px;
+    color: #ffd700;
+    font-size: 18px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.day-summary {
+    background: rgba(0,0,0,0.2);
+    padding: 15px;
+    border-radius: 8px;
+    color: #fff;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.day-summary p {
+    margin: 8px 0;
+    font-size: 14px;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.continue-btn, .restart-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s;
+    font-family: 'Courier New', monospace;
+}
+
+.continue-btn {
+    background: #4caf50;
+    color: white;
+}
+
+.restart-btn {
+    background: #f44336;
+    color: white;
+}
+
+.continue-btn:hover, .restart-btn:hover {
+    transform: scale(1.05);
+}
+
+
+/* Process Flow in Tutorial */
+.process-flow {
+    font-family: 'Courier New', monospace;
+    background: rgba(0,0,0,0.3);
+    padding: 10px;
+    border-radius: 6px;
+    text-align: center;
+    font-weight: bold;
+    color: #4fc3f7;
+}
+
+.process-arrow {
+    color: #ffd700;
+    margin: 0 5px;
+}
+
+/* Update existing tutorial step styles */
+.tutorial-step {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 6px;
+}
+
+.tutorial-step h4 {
+    color: #ffd700;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.tutorial-step p {
+    margin: 8px 0;
+    line-height: 1.5;
+    font-size: 12px;
+}
