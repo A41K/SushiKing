@@ -14,8 +14,8 @@ class SushiGame {
         
         // Day/Time system
         this.currentDay = 1;
-        this.timeLeft = 600000; // 10 minutes in milliseconds
-        this.dayDuration = 600000; // 10 minutes
+        this.timeLeft = 300000; // 5 minutes in milliseconds
+        this.dayDuration = 300000; // 5 minutes
         this.isPaused = false;
         this.gameOver = false;
         
