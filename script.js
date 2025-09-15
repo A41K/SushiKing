@@ -266,7 +266,7 @@ async loadTextures() {
                 resolve();
             };
             // lowercase path
-            img.src = `https://a41k.me/SushiKing/Textures/${fileName}.png`;
+            img.src = `https://a41k.me/SushiKing/texture/${fileName}.png`;
         });
     });
 
