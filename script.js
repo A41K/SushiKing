@@ -256,7 +256,7 @@ class SushiGame {
                     this.textures[fileName] = canvas;
                     resolve();
                 };
-                img.src = `./SushiKing/Textures/${fileName}.png`;
+                img.src = `https://a41k.me/SushiKing/Textures/${fileName}.png`;
             });
         });
 
