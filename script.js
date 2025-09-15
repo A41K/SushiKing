@@ -18,6 +18,18 @@ class SushiGame {
         this.dayDuration = 300000; // 5 minutes
         this.isPaused = false;
         this.gameOver = false;
+
+        this.sounds = {
+    wash: new Audio('/Sounds/wash.mp3'),
+    peel: new Audio('/Sounds/peel.mp3'),
+    chop: new Audio('/Sounds/chop.mp3'),
+    cook: new Audio('/Sounds/cook.mp3'),
+        };
+// make them loopable, only for "longer" tasks
+    this.sounds.wash.loop = true;
+    this.sounds.peel.loop = true;
+    this.sounds.chop.loop = true;
+    this.sounds.cook.loop = true;
         
         // Debug logging
         console.log('Game initialized with:');
@@ -975,22 +987,22 @@ updateTimeUI() {
                 const screenY = e.clientY;
                 
                 let tooltipContent = '';
-                if (hoveredItem.type === 'ingredient') {
-                    const baseItem = hoveredItem.name.replace(/^(washed_|peeled_|chopped_|cooked_)/, '');
-                    tooltipContent = `
-                        <strong>${hoveredItem.name.replace(/_/g, ' ').toUpperCase()}</strong><br>
-                        ${this.getItemDescription(hoveredItem.name)}<br><br>
-                        <strong>Processing:</strong><br>
-                        ${this.getProcessingSteps(baseItem)}
-                    `;
-                } else if (hoveredItem.type === 'dish') {
+if (hoveredItem.type === 'ingredient') {
+    const baseItem = hoveredItem.name.replace(/^(washed_|peeled_|chopped_|cooked_)/, '');
+    tooltipContent = `
+        <strong>${hoveredItem.name.replace(/_/g, ' ').toUpperCase()}</strong><br>
+        ${this.getItemDescription(hoveredItem.name)}<br><br>
+        <strong>Processing:</strong><br>
+        ${this.getProcessingSteps(baseItem)}
+    `;
+} else if (hoveredItem.type === 'dish') {
                     const recipeInfo = this.getRecipeProcess(hoveredItem.recipeKey);
-                    tooltipContent = `
-                        <strong>${hoveredItem.name.toUpperCase()}</strong><br>
-                        Sells for: $${hoveredItem.sellPrice}<br><br>
-                        <strong>Ingredients:</strong><br>
-                        ${recipeInfo.ingredients}
-                    `;
+tooltipContent = `
+    <strong>${hoveredItem.name.replace(/_/g, ' ').toUpperCase()}</strong><br>
+    ${this.getItemDescription(hoveredItem.name)}<br><br>
+    <strong>Processing:</strong><br>
+    ${this.getProcessingSteps(hoveredItem.name)}
+`;
                 }
                 
                 this.showCanvasTooltip(screenX, screenY, tooltipContent);
@@ -1065,24 +1077,47 @@ updateTimeUI() {
         return processMap[stationName]?.includes(itemName) || false;
     }
     
-    processIngredient(item, workstation) {
-        this.removeGameObject(item);
-        workstation.cooldown = workstation.maxCooldown;
-        
-        setTimeout(() => {
-            const processedName = this.getProcessedName(item.name, workstation.name);
-            const processedItem = {
-                type: 'ingredient',
-                name: processedName,
-                x: workstation.x + 20,
-                y: workstation.y + 80,
-                width: 35,
-                height: 35,
-                color: this.getIngredientColor(processedName)
-            };
-            this.gameObjects.push(processedItem);
-        }, workstation.maxCooldown);
+processIngredient(item, workstation) {
+    this.removeGameObject(item);
+    workstation.cooldown = workstation.maxCooldown;
+
+    if (localStorage.getItem("sfxEnabled") !== "false" && this.sounds[workstation.name]) {
+    const sfx = this.sounds[workstation.name];
+    sfx.currentTime = 0;
+    sfx.play();
+        }
+
+    // 🔊 Start sound (if exists)
+    if (this.sounds[workstation.name]) {
+        const sfx = this.sounds[workstation.name];
+        try {
+            sfx.currentTime = 0;
+            sfx.play();
+        } catch (err) {
+            console.warn("Autoplay blocked:", err);
+        }
     }
+
+    setTimeout(() => {
+        const processedName = this.getProcessedName(item.name, workstation.name);
+        const processedItem = {
+            type: 'ingredient',
+            name: processedName,
+            x: workstation.x + 20,
+            y: workstation.y + 80,
+            width: 35,
+            height: 35,
+            color: this.getIngredientColor(processedName)
+        };
+        this.gameObjects.push(processedItem);
+
+        // 🔊 Stop sound after finished
+        if (this.sounds[workstation.name]) {
+            this.sounds[workstation.name].pause();
+            this.sounds[workstation.name].currentTime = 0;
+        }
+    }, workstation.maxCooldown);
+}
     
     getProcessedName(itemName, stationName) {
         const processMap = {
@@ -1131,22 +1166,35 @@ updateTimeUI() {
         return a.length === b.length && a.every((val, i) => val === b[i]);
     }
     
-    startCombining(recipe, recipeKey, workstation) {
-        setTimeout(() => {
-            const dish = {
-                type: 'dish',
-                name: recipe.name,
-                recipeKey: recipeKey,
-                x: workstation.x + 20,
-                y: workstation.y + 80,
-                width: 40,
-                height: 40,
-                color: '#ffd700',
-                sellPrice: recipe.sellPrice
-            };
-            this.gameObjects.push(dish);
-        }, recipe.combineTime);
+startCombining(recipe, recipeKey, workstation) {
+    // 🔊 Play "prep" loop
+    if (this.sounds.prep) {
+        const sfx = this.sounds.prep;
+        sfx.currentTime = 0;
+        sfx.play();
     }
+
+    setTimeout(() => {
+        const dish = {
+            type: 'dish',
+            name: recipe.name,
+            recipeKey: recipeKey,
+            x: workstation.x + 20,
+            y: workstation.y + 80,
+            width: 40,
+            height: 40,
+            color: '#ffd700',
+            sellPrice: recipe.sellPrice
+        };
+        this.gameObjects.push(dish);
+
+        // 🔊 Stop prep sound
+        if (this.sounds.prep) {
+            this.sounds.prep.pause();
+            this.sounds.prep.currentTime = 0;
+        }
+    }, recipe.combineTime);
+}
     
     serveDish(dish, workstation) {
         workstation.cooldown = workstation.maxCooldown;
