@@ -234,7 +234,7 @@ class SushiGame {
     async loadTextures() {
         // Only load workstation textures if you have them
         const textureFiles = [
-            'wash', 'peel', 'chop', 'cook', 'prep', 'serve'
+            'Wash', 'Peel', 'Chop', 'Cook', 'Prep', 'Serve'
         ];
 
         const loadPromises = textureFiles.map(fileName => {
