@@ -359,7 +359,26 @@ class SushiGame {
         return Object.values(this.dailyExpenses).reduce((sum, expense) => sum + expense, 0);
     }
     
-    
+updateTimeUI() {
+    const timeElement = document.getElementById("timeLeft");
+    if (timeElement) {
+        const totalSeconds = Math.max(0, Math.floor(this.timeLeft / 1000));
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        timeElement.textContent = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+    }
+
+    const dayElement = document.getElementById("dayCounter");
+    if (dayElement) {
+        dayElement.textContent = this.currentDay;
+    }
+
+    const expenseElement = document.getElementById("dailyExpenses");
+    if (expenseElement) {
+        expenseElement.textContent = `$${this.getTotalDailyExpenses()}`;
+    }
+}
+
 
     updateTime() {
     
@@ -1608,27 +1627,40 @@ class SushiGame {
             money: this.money,
             inventory: this.inventory,
             orders: this.orders,
-            nextOrderId: this.nextOrderId
+            nextOrderId: this.nextOrderId,
+            timeLeft: this.timeLeft,  
         };
         localStorage.setItem('sushiGameSave', JSON.stringify(gameState));
     }
     
-    loadGame() {
-        const saved = localStorage.getItem('sushiGameSave');
-        if (saved) {
-            try {
-                const gameState = JSON.parse(saved);
-                this.money = gameState.money || 100;
-                this.inventory = gameState.inventory || {};
-                this.orders = gameState.orders || [];
-                this.nextOrderId = gameState.nextOrderId || 1;
-                this.updateUI();
-                this.updateOrdersUI();
-            } catch (e) {
-                console.error('Failed to load save:', e);
+loadGame() {
+    const saved = localStorage.getItem('sushiGameSave');
+    if (saved) {
+        try {
+            const gameState = JSON.parse(saved);
+            this.money = gameState.money ?? 100;
+            this.inventory = gameState.inventory ?? {};
+            this.orders = gameState.orders ?? [];
+            this.nextOrderId = gameState.nextOrderId ?? 1;
+            this.currentDay = gameState.currentDay ?? 1;
+
+            if (typeof gameState.timeLeft === "number") {
+                this.timeLeft = gameState.timeLeft;
+            } else {
+                this.timeLeft = this.dayDuration;
             }
+
+            if (typeof gameState.dayDuration === "number") {
+                this.dayDuration = gameState.dayDuration;
+            }
+
+            this.updateUI();
+            this.updateOrdersUI();
+        } catch (e) {
+            console.error('Failed to load save:', e);
         }
     }
+}
     
     render() {
         // Clear canvas with gradient background
@@ -1706,11 +1738,13 @@ class SushiGame {
     
 gameLoop() {
     if (!this.gameOver) {
-        this.updateTime();        // Update the day timer
-        this.updateCooldowns();   // Update workstation cooldowns
-        this.updateOrders();      // Update order timers
+        this.updateTime();        // Updates timer logic
+        this.updateCooldowns();   // Updates station cooldowns
+        this.updateOrders();      // Order timers
     }
-    this.render();                // Render the game
+
+    this.updateTimeUI();          // <-- Add this line to refresh UI each frame
+    this.render();                // Draw game
     requestAnimationFrame(() => this.gameLoop());
 }
 }
@@ -1718,11 +1752,38 @@ gameLoop() {
 // Global functions
 let game;
 
+const savedMusic = localStorage.getItem("musicEnabled");
+const savedSfx = localStorage.getItem("sfxEnabled");
+const savedDayLength = localStorage.getItem("dayLength");
+
+if (savedMusic !== null) document.getElementById("musicToggle").checked = savedMusic === "true";
+if (savedSfx !== null) document.getElementById("sfxToggle").checked = savedSfx === "true";
+if (savedDayLength !== null) {
+    this.dayDuration = parseInt(savedDayLength, 10) * 60000;
+    this.timeLeft = this.dayDuration;
+    document.getElementById("dayLengthInput").value = savedDayLength;
+}
+
 function openModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
         modal.style.display = 'block';
     }
+}
+
+function applySettings() {
+    if (!game) return;
+
+    // Music toggle
+    const musicEnabled = document.getElementById("musicToggle").checked;
+    localStorage.setItem("musicEnabled", musicEnabled);
+
+    // Sound effects toggle
+    const sfxEnabled = document.getElementById("sfxToggle").checked;
+    localStorage.setItem("sfxEnabled", sfxEnabled);
+
+    alert("✅ Settings Applied!");
+    closeModal("settingsModal");
 }
 
 function closeModal(modalId) {
