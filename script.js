@@ -30,6 +30,29 @@ class SushiGame {
     this.sounds.peel.loop = true;
     this.sounds.chop.loop = true;
     this.sounds.cook.loop = true;
+
+    localStorage.removeItem('sushiGameSave');
+    localStorage.removeItem('musicEnabled');
+    localStorage.removeItem('sfxEnabled');
+    localStorage.removeItem('dayLength');
+
+    // Reset game state
+    this.money = 100;
+    this.currentDay = 1;
+    this.timeLeft = this.dayDuration;
+    this.gameOver = false;
+    this.isPaused = false;
+    this.inventory = {};
+    this.orders = [];
+    this.nextOrderId = 1;
+    this.gameObjects = this.gameObjects.filter(obj => obj.type === 'workstation'); // keep stations
+
+    // Refresh UI
+    this.updateUI();
+    this.updateOrdersUI();
+
+    console.clear();
+    console.log("🧹 Sushi Master: FULL HARD RESET DONE");
         
         // Debug logging
         console.log('Game initialized with:');
@@ -1869,6 +1892,16 @@ function loadGame() {
         alert('Game loaded!');
     }
 }
+
+// Developer console command
+window.resetSushiGame = function() {
+    if (game) {
+        game.hardResetGame();
+        alert("Game has been fully reset! 🧹🍣");
+    } else {
+        console.warn("No game instance is running.");
+    }
+};
 
 // Close modals when clicking outside
 window.onclick = function(event) {
