@@ -243,40 +243,36 @@ class SushiGame {
         });
     }
 
-    async loadTextures() {
-        // Only load workstation textures if you have them
-        const textureFiles = [
-            'wash', 'peel', 'chop', 'cook', 'prep', 'serve'
-        ];
+async loadTextures() {
+    const textureFiles = ['wash', 'peel', 'chop', 'cook', 'prep', 'serve'];
 
-        const loadPromises = textureFiles.map(fileName => {
-            return new Promise((resolve, reject) => {
-                const img = new Image();
-                img.onload = () => {
-                    this.textures[fileName] = img;
-                    resolve();
-                };
-                img.onerror = () => {
-                    console.warn(`Failed to load texture: ${fileName}.png`);
-                    // Create a fallback colored rectangle for workstations
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 100;
-                    canvas.height = 70;
-                    const ctx = canvas.getContext('2d');
-                    ctx.fillStyle = this.getWorkstationColor(fileName);
-                    ctx.fillRect(0, 0, 100, 70);
-                    this.textures[fileName] = canvas;
-                    resolve();
-                };
-                img.src = `./Textures/${fileName}.png`;
-            });
+    const loadPromises = textureFiles.map(fileName => {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+                this.textures[fileName] = img;
+                resolve();
+            };
+            img.onerror = () => {
+                console.warn(`Failed to load texture: ${fileName}.png`);
+                // fallback rectangle
+                const canvas = document.createElement('canvas');
+                canvas.width = 100;
+                canvas.height = 70;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = this.getWorkstationColor(fileName);
+                ctx.fillRect(0, 0, 100, 70);
+                this.textures[fileName] = canvas;
+                resolve();
+            };
+            // lowercase path
+            img.src = `https://a41k.me/SushiKing/Textures/${fileName}.png`;
         });
+    });
 
-        await Promise.all(loadPromises);
-        this.texturesLoaded = true;
-        console.log('All textures loaded!');
-    }
-
+    await Promise.all(loadPromises);
+    this.texturesLoaded = true;
+}
     createCanvasTooltip() {
         // Create canvas tooltip element if it doesn't exist
         let tooltip = document.getElementById('canvasTooltip');
