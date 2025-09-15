@@ -246,7 +246,7 @@ class SushiGame {
     async loadTextures() {
         // Only load workstation textures if you have them
         const textureFiles = [
-            'Wash', 'Peel', 'Chop', 'Cook', 'Prep', 'Serve'
+            'wash', 'peel', 'chop', 'cook', 'prep', 'serve'
         ];
 
         const loadPromises = textureFiles.map(fileName => {
@@ -268,7 +268,7 @@ class SushiGame {
                     this.textures[fileName] = canvas;
                     resolve();
                 };
-                img.src = `https://a41k.me/SushiKing/Textures/${fileName}.png`;
+                img.src = `./Textures/${fileName}.png`;
             });
         });
 
@@ -692,42 +692,49 @@ updateTimeUI() {
         return descriptions[itemName] || 'Unknown ingredient';
     }
     
-    getProcessingSteps(itemName) {
-        const processSteps = {
-            // Fish processing
-            'salmon': 'Raw Salmon → WASH → CHOP → COOK',
-            'tuna': 'Raw Tuna → WASH → CHOP → COOK',
-            'eel': 'Raw Eel → WASH → COOK',
-            'shrimp': 'Raw Shrimp → WASH → COOK',
-            'crab': 'Raw Crab → WASH → COOK',
-            'yellowtail': 'Raw Yellowtail → WASH → CHOP → COOK',
-            'mackerel': 'Raw Mackerel → WASH → CHOP → COOK',
-            'sea_bass': 'Raw Sea Bass → WASH → CHOP → COOK',
-            
-            // Base ingredients
-            'rice': 'Raw Rice → COOK',
-            'nori': 'Nori → Ready to use',
-            'wasabi': 'Wasabi → Ready to use',
-            'soy_sauce': 'Soy Sauce → Ready to use',
-            'ginger': 'Raw Ginger → WASH → PEEL → CHOP',
-            
-            // Vegetables
-            'cucumber': 'Raw Cucumber → WASH → PEEL → CHOP',
-            'avocado': 'Raw Avocado → WASH → PEEL → CHOP',
-            'carrot': 'Raw Carrot → WASH → PEEL → CHOP',
-            'radish': 'Raw Radish → WASH → PEEL → CHOP',
-            'asparagus': 'Raw Asparagus → WASH → CHOP',
-            'scallion': 'Raw Scallion → WASH → CHOP',
-            
-            // Special ingredients
-            'sesame_seeds': 'Sesame Seeds → Ready to use',
-            'tempura_batter': 'Tempura Batter → Ready to use',
-            'cream_cheese': 'Cream Cheese → Ready to use',
-            'spicy_mayo': 'Spicy Mayo → Ready to use'
-        };
-        
-        return processSteps[itemName] || 'Processing steps unknown';
-    }
+getProcessingSteps(itemName) {
+    const base = this.normalizeName(itemName);
+    const stage = this.getIngredientStage(itemName);
+
+    // Define full chain per base ingredient
+    const chains = {
+        salmon: ["raw","washed","chopped","cooked"],
+        tuna: ["raw","washed","chopped","cooked"],
+        eel: ["raw","washed","cooked"],
+        shrimp: ["raw","washed","cooked"],
+        crab: ["raw","washed","cooked"],
+        yellowtail: ["raw","washed","chopped","cooked"],
+        mackerel: ["raw","washed","chopped","cooked"],
+        sea_bass: ["raw","washed","chopped","cooked"],
+        rice: ["raw","cooked"],
+        ginger: ["raw","washed","peeled","chopped"],
+        cucumber: ["raw","washed","peeled","chopped"],
+        avocado: ["raw","washed","peeled","chopped"],
+        carrot: ["raw","washed","peeled","chopped"],
+        radish: ["raw","washed","peeled","chopped"],
+        asparagus: ["raw","washed","chopped"],
+        scallion: ["raw","washed","chopped"],
+        // “Ready” items
+        nori: ["ready"],
+        wasabi: ["ready"],
+        soy_sauce: ["ready"],
+        sesame_seeds: ["ready"],
+        tempura_batter: ["ready"],
+        cream_cheese: ["ready"],
+        spicy_mayo: ["ready"]
+    };
+
+    const chain = chains[base];
+    if (!chain) return "Processing steps unknown";
+
+    // Build chain string with checkmarks ✅
+    return chain
+      .map(st => {
+         if (st === stage) return `✔ ${st.toUpperCase()}`;
+         return st.toUpperCase();
+      })
+      .join(" → ");
+}
     
     getRecipeProcess(recipeKey) {
         const processes = {
@@ -931,6 +938,18 @@ updateTimeUI() {
         }
     }
     
+    normalizeName(itemName) {
+    return itemName.replace(/^(washed_|peeled_|chopped_|cooked_)/, '');
+}
+
+getIngredientStage(itemName) {
+    if (itemName.startsWith("washed_")) return "washed";
+    if (itemName.startsWith("peeled_")) return "peeled";
+    if (itemName.startsWith("chopped_")) return "chopped";
+    if (itemName.startsWith("cooked_")) return "cooked";
+    return "raw";
+}
+
     handleMouseMove(e) {
         this.mousePos = this.getMousePos(e);
         
