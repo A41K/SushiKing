@@ -26,10 +26,10 @@
                 <span class="status-label">📅 DAY:</span>
                 <span id="dayCounter" class="status-value">1</span>
             </div>
-    <div class="status-item">
-        <span class="status-label">⏰ TIME LEFT:</span>
-        <span id="timeLeft" class="status-value">5:00</span>
-    </div>
+            <div class="status-item">
+                <span class="status-label">⏰ TIME LEFT:</span>
+                <span id="timeLeft" class="status-value">5:00</span>
+            </div>
             <div class="status-item">
                 <span class="status-label">💰 MONEY:</span>
                 <span id="money" class="status-value">$100</span>
@@ -59,25 +59,30 @@
         </div>
     </div>
 
-    <!-- Settings Modal -->
-<div id="settingsModal" class="modal">
-  <div class="modal-content">
-    <span class="close" onclick="closeModal('settingsModal')">&times;</span>
-    <h3 style="text-align: center; color: #ffd700; margin-bottom: 20px;">⚙️ GAME SETTINGS</h3>
-    
-    <div class="settings-section">
-      <label>
-        🎵 Music:
-        <input type="checkbox" id="musicToggle" checked>
-      </label>
-    </div>
+<!-- Floating Jukebox Panel -->
+<div id="jukeboxPanel">
+  <img src="texture/Jukebox.webp" id="jukeboxBtn" alt="Jukebox">
+</div>
 
-    <div class="settings-section">
-      <label>
-        🔊 Sound Effects:
-        <input type="checkbox" id="sfxToggle" checked>
-      </label>
-    </div>
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('settingsModal')">&times;</span>
+            <h3 style="text-align: center; color: #ffd700; margin-bottom: 20px;">⚙️ GAME SETTINGS</h3>
+    
+        <div class="settings-section">
+            <label>
+                🎵 Music:
+                <input type="checkbox" id="musicToggle" checked>
+            </label>
+        </div>
+
+        <div class="settings-section">
+            <label>
+                🔊 Sound Effects:
+                <input type="checkbox" id="sfxToggle" checked>
+            </label>  
+        </div>
 
     <div class="modal-buttons">
       <button class="pixel-btn" onclick="applySettings()">✅ Apply</button>
@@ -97,6 +102,31 @@
             <div class="shop-grid" id="shopGrid"></div>
         </div>
     </div>
+
+    <!-- Stats Modal -->
+    <div id="statsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('statsModal')">&times;</span>
+            <h3 style="text-align: center; color: #ffd700; margin-bottom: 20px;">📊 GAME STATS</h3>
+    <div id="statsContent"></div>
+  </div>
+</div>
+
+
+<!-- Jukebox Modal -->
+<div id="jukeboxModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('jukeboxModal')">&times;</span>
+    <h3>🎵 JUKEBOX</h3>
+
+    <!-- Hidden real input, custom label for style -->
+    <label for="songUpload" class="upload-label">📂 Upload MP3 Songs</label>
+    <input type="file" id="songUpload" accept="audio/mp3,audio/mpeg" multiple style="display:none;">
+
+    <!-- Playlist list -->
+    <div id="songList"></div>
+  </div>
+</div>
     
     <!-- Tutorial Modal -->
     <div id="tutorialModal" class="modal">

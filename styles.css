@@ -581,3 +581,216 @@
     line-height: 1.5;
     font-size: 12px;
 }
+            .day-end-modal {
+                max-width: 500px;
+                padding: 20px;
+                background: linear-gradient(135deg, #667db6 0%, #0082c8 100%);
+                border: 3px solid #ffd700;
+            }
+            
+            .day-end-content h2 {
+                color: #ffd700;
+                text-align: center;
+                margin-bottom: 20px;
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            }
+            
+            .expenses-breakdown {
+                background: rgba(0,0,0,0.3);
+                padding: 15px;
+                border-radius: 8px;
+                margin-bottom: 15px;
+            }
+            
+            .expenses-breakdown h3 {
+                color: #ffd700;
+                margin-bottom: 10px;
+            }
+            
+            .expense-item {
+                display: flex;
+                justify-content: space-between;
+                padding: 5px 0;
+                color: #fff;
+                border-bottom: 1px solid rgba(255,255,255,0.2);
+            }
+            
+            .total-expense {
+                margin-top: 10px;
+                padding-top: 10px;
+                color: #ffd700;
+                font-size: 18px;
+            }
+            
+            .day-summary {
+                background: rgba(0,0,0,0.2);
+                padding: 15px;
+                border-radius: 8px;
+                color: #fff;
+                margin-bottom: 15px;
+            }
+            
+            .modal-buttons {
+                display: flex;
+                gap: 10px;
+                justify-content: center;
+            }
+            
+            .continue-btn, .restart-btn {
+                padding: 12px 24px;
+                border: none;
+                border-radius: 6px;
+                font-size: 16px;
+                font-weight: bold;
+                cursor: pointer;
+                transition: transform 0.2s;
+            }
+            
+            .continue-btn {
+                background: #4caf50;
+                color: white;
+            }
+            
+            .restart-btn {
+                background: #f44336;
+                color: white;
+            }
+            
+            .continue-btn:hover, .restart-btn:hover {
+                transform: scale(1.05);
+            }
+
+    #statsModal .modal-content {
+    max-width: 400px;
+    background: linear-gradient(135deg, #222, #333);
+    border: 2px solid #ffd700;
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+}
+/* === JUKEBOX MODAL === */
+#jukeboxModal .modal-content {
+  background: linear-gradient(135deg, #0f0f2e, #1a1a3a);
+  border: 4px solid #ffd700;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0px 0px 20px rgba(255, 215, 0, 0.7);
+  font-family: 'Press Start 2P', monospace;
+  color: white;
+  text-align: center;
+  max-width: 500px;
+}
+
+/* Float the jukebox panel */
+#jukeboxPanel img{
+  position: fixed;
+  margin-top: 10px; /* ⬅️ adjust this value to move up/down */
+  margin-left: 10px;   /* distance from right edge */
+  background: #1a1a2e;
+  border: 2px solid #ffd700;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.7);
+  text-align: center;
+  z-index: 999; /* stay above game canvas */
+  max-width: 5%;
+  max-height: 8%;
+}
+
+/* Modal Title */
+#jukeboxModal h3 {
+  font-size: 14px;
+  color: #ffd700;
+  text-shadow: 2px 2px #000;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#jukeboxModal h3::before {
+  content: "🎵 ";
+  margin-right: 6px;
+  animation: bounceNote 1s infinite alternate;
+}
+
+@keyframes bounceNote {
+  from { transform: translateY(0px); }
+  to { transform: translateY(-3px); }
+}
+
+/* === SONG UPLOAD === */
+#songUpload {
+  display: none; /* Hide default ugly input */
+}
+
+/* Custom Upload Button */
+.upload-label {
+  display: inline-block;
+  background: #222;
+  border: 2px dashed #ffd700;
+  color: #ffd700;
+  padding: 12px;
+  font-size: 10px;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.upload-label:hover {
+  background: #333;
+  box-shadow: 0px 0px 10px #ffd700aa;
+}
+
+/* === SONG LIST === */
+#songList {
+  margin-top: 20px;
+  text-align: left;
+}
+
+#songList div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1d1d3a;
+  border: 2px solid #ffd700;
+  padding: 10px;
+  margin-bottom: 8px;
+  font-size: 9px;
+  color: #fff;
+  box-shadow: 2px 2px #000;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+#songList div:hover {
+  background: #29295a;
+  transform: scale(1.03);
+}
+
+/* Play/Stop Buttons */
+#songList button {
+  background: #4a90e2;
+  border: 2px solid #fff;
+  color: #fff;
+  padding: 4px 6px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  cursor: pointer;
+  margin-left: 4px;
+  transition: all 0.1s;
+  box-shadow: 2px 2px #000;
+}
+
+#songList button:hover {
+  background: #357abd;
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px #000;
+}
+
+#songList button:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+

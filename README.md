@@ -1,1 +1,1 @@
-Cooking in 4k
+SushiKing is a extremely kitchen-sink website I made. You can see the orders on the side with the instructions, buy the produce/items from the shop then Peel, Wash, Cook, Chop, Prep then Serve. You have taxes and bills to pay every day (5 minutes on the counter). There are better orders and basic ones. You'll choose what you want to do and what to use

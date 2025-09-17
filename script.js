@@ -14,45 +14,23 @@ class SushiGame {
         
         // Day/Time system
         this.currentDay = 1;
-        this.timeLeft = 300000; // 5 minutes in milliseconds
-        this.dayDuration = 300000; // 5 minutes
+        this.timeLeft = 360000; // 6 minutes in milliseconds
+        this.dayDuration = 360000; // 6 minutes
         this.isPaused = false;
         this.gameOver = false;
 
         this.sounds = {
-    wash: new Audio('/Sounds/wash.mp3'),
-    peel: new Audio('/Sounds/peel.mp3'),
-    chop: new Audio('/Sounds/chop.mp3'),
-    cook: new Audio('/Sounds/cook.mp3'),
+        wash: new Audio('/Sounds/wash.mp3'),
+        peel: new Audio('/Sounds/peel.mp3'),
+        chop: new Audio('/Sounds/chop.mp3'),
+        cook: new Audio('/Sounds/cook.mp3'),
         };
-// make them loopable, only for "longer" tasks
-    this.sounds.wash.loop = true;
-    this.sounds.peel.loop = true;
-    this.sounds.chop.loop = true;
-    this.sounds.cook.loop = true;
 
-    localStorage.removeItem('sushiGameSave');
-    localStorage.removeItem('musicEnabled');
-    localStorage.removeItem('sfxEnabled');
-    localStorage.removeItem('dayLength');
+        this.sounds.wash.loop = true;
+        this.sounds.peel.loop = true;
+        this.sounds.chop.loop = true;
+        this.sounds.cook.loop = true;
 
-    // Reset game state
-    this.money = 100;
-    this.currentDay = 1;
-    this.timeLeft = this.dayDuration;
-    this.gameOver = false;
-    this.isPaused = false;
-    this.inventory = {};
-    this.orders = [];
-    this.nextOrderId = 1;
-    this.gameObjects = this.gameObjects.filter(obj => obj.type === 'workstation'); // keep stations
-
-    // Refresh UI
-    this.updateUI();
-    this.updateOrdersUI();
-
-    console.clear();
-    console.log("🧹 Sushi Master: FULL HARD RESET DONE");
         
         // Debug logging
         console.log('Game initialized with:');
@@ -75,15 +53,12 @@ class SushiGame {
             insurance: 12,
             supplies: 20
         };
-        
-        // Add texture loading
+
         this.textures = {};
         this.texturesLoaded = false;
-        
-        // Create canvas tooltip element if it doesn't exist
+
         this.createCanvasTooltip();
-        
-        // Disable image smoothing for pixel art
+
         this.ctx.imageSmoothingEnabled = false;
         
         this.shopItems = [
@@ -254,8 +229,7 @@ class SushiGame {
                 name: 'Deluxe Sashimi'
             }
         };
-        
-        // Load textures first, then initialize game
+
         this.loadTextures().then(() => {
             this.setupEventListeners();
             this.createWorkstations();
@@ -278,7 +252,6 @@ async loadTextures() {
             };
             img.onerror = () => {
                 console.warn(`Failed to load texture: ${fileName}.png`);
-                // fallback rectangle
                 const canvas = document.createElement('canvas');
                 canvas.width = 100;
                 canvas.height = 70;
@@ -288,7 +261,6 @@ async loadTextures() {
                 this.textures[fileName] = canvas;
                 resolve();
             };
-            // lowercase path
             img.src = `https://a41k.me/SushiKing/texture/${fileName}.png`;
         });
     });
@@ -297,7 +269,6 @@ async loadTextures() {
     this.texturesLoaded = true;
 }
     createCanvasTooltip() {
-        // Create canvas tooltip element if it doesn't exist
         let tooltip = document.getElementById('canvasTooltip');
         if (!tooltip) {
             tooltip = document.createElement('div');
@@ -323,10 +294,8 @@ async loadTextures() {
         this.canvas.addEventListener('mousedown', (e) => this.handleMouseDown(e));
         this.canvas.addEventListener('mousemove', (e) => this.handleMouseMove(e));
         this.canvas.addEventListener('mouseup', (e) => this.handleMouseUp(e));
-        
-        // Add global click handler to remove tooltips
+
         document.addEventListener('click', (e) => {
-            // Check if click is outside inventory area
             const inventoryDiv = document.getElementById('inventoryItems');
             const ordersDiv = document.getElementById('ordersList');
             
@@ -338,6 +307,29 @@ async loadTextures() {
                 this.removeOrderTooltip();
             }
         });
+    }
+
+    hardResetGame() {
+        localStorage.removeItem('sushiGameSave');
+        localStorage.removeItem('musicEnabled');
+        localStorage.removeItem('sfxEnabled');
+        localStorage.removeItem('dayLength');
+
+        this.money = 100;
+        this.currentDay = 1;
+        this.timeLeft = this.dayDuration;
+        this.gameOver = false;
+        this.isPaused = false;
+        this.inventory = {};
+        this.orders = [];
+        this.nextOrderId = 1;
+        this.gameObjects = this.gameObjects.filter(obj => obj.type === 'workstation');
+
+        this.updateUI();
+        this.updateOrdersUI();
+
+    console.clear();
+    console.log("🧹 FULL HARD RESET DONE");
     }
     
     createWorkstations() {
@@ -385,37 +377,35 @@ async loadTextures() {
         });
     }
 
-    // Day counter system methods
     getTotalDailyExpenses() {
         return Object.values(this.dailyExpenses).reduce((sum, expense) => sum + expense, 0);
     }
     
-updateTimeUI() {
-    const timeElement = document.getElementById("timeLeft");
-    if (timeElement) {
-        const totalSeconds = Math.max(0, Math.floor(this.timeLeft / 1000));
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
-        timeElement.textContent = `${minutes}:${seconds.toString().padStart(2, "0")}`;
-    }
+    updateTimeUI() {
+        const timeElement = document.getElementById("timeLeft");
+        if (timeElement) {
+            const totalSeconds = Math.max(0, Math.floor(this.timeLeft / 1000));
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            timeElement.textContent = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+        }   
 
-    const dayElement = document.getElementById("dayCounter");
-    if (dayElement) {
-        dayElement.textContent = this.currentDay;
-    }
+        const dayElement = document.getElementById("dayCounter");
+        if (dayElement) {
+            dayElement.textContent = this.currentDay;
+        }
 
-    const expenseElement = document.getElementById("dailyExpenses");
-    if (expenseElement) {
-        expenseElement.textContent = `$${this.getTotalDailyExpenses()}`;
+        const expenseElement = document.getElementById("dailyExpenses");
+        if (expenseElement) {
+            expenseElement.textContent = `$${this.getTotalDailyExpenses()}`;
+        }
     }
-}
-
 
     updateTime() {
     
         
         if (!this.isPaused && !this.gameOver) {
-            this.timeLeft -= 16; // 16ms per frame
+            this.timeLeft -= 16;
             
             if (this.timeLeft <= 0) {
                 console.log('Day ended!');
@@ -441,6 +431,23 @@ updateTimeUI() {
         this.saveGame();
     }
     
+    showStats() {
+    const statsModal = document.getElementById("statsModal");
+    const statsContent = document.getElementById("statsContent");
+
+    statsContent.innerHTML = `
+        <p>📅 You survived until <strong>Day ${this.currentDay}</strong></p>
+        <p>💰 Final Money: <strong>$${this.money}</strong></p>
+        <p>📦 Inventory Items Left: <strong>${Object.entries(this.inventory)
+            .map(([item, count]) => `${item} (${count})`)
+            .join(", ") || "None"}</strong></p>
+        <p>📋 Orders Remaining: <strong>${this.orders.length}</strong></p>
+    `;
+
+        closeModal('dayEndModal');
+        statsModal.style.display = "block";
+    }
+    
     showDayEndModal(expenses, isGameOver) {
         const modal = document.getElementById('dayEndModal') || this.createDayEndModal();
         const modalContent = modal.querySelector('.day-end-content');
@@ -455,7 +462,7 @@ updateTimeUI() {
                 </div>
                 <div class="modal-buttons">
                     <button onclick="game.restartGame()" class="restart-btn">🔄 Restart Game</button>
-                    <button onclick="closeModal('dayEndModal')" class="continue-btn">📊 View Stats</button>
+                    <button onclick="game.showStats()" class="continue-btn">📊 View Stats</button>
                 </div>
             `;
         } else {
@@ -475,7 +482,7 @@ updateTimeUI() {
                 <div class="day-summary">
                     <p>💰 Money Remaining: $${this.money}</p>
                     <p>🌅 Starting Day ${this.currentDay}</p>
-                    <p>💡 Tip: You need at least $${this.getTotalDailyExpenses()} each day to stay in business!</p>
+                    <p>💡 Tip: You need at least $${this.getTotalDailyExpenses()} each day to stay in business! So get your money up, not your funny up!!</p>
                 </div>
                 <div class="modal-buttons">
                     <button onclick="game.continueToNextDay()" class="continue-btn">▶️ Continue to Day ${this.currentDay}</button>
@@ -498,91 +505,6 @@ updateTimeUI() {
             </div>
         `;
         document.body.appendChild(modal);
-        
-        // Add CSS styles
-        const style = document.createElement('style');
-        style.textContent = `
-            .day-end-modal {
-                max-width: 500px;
-                padding: 20px;
-                background: linear-gradient(135deg, #667db6 0%, #0082c8 100%);
-                border: 3px solid #ffd700;
-            }
-            
-            .day-end-content h2 {
-                color: #ffd700;
-                text-align: center;
-                margin-bottom: 20px;
-                text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-            }
-            
-            .expenses-breakdown {
-                background: rgba(0,0,0,0.3);
-                padding: 15px;
-                border-radius: 8px;
-                margin-bottom: 15px;
-            }
-            
-            .expenses-breakdown h3 {
-                color: #ffd700;
-                margin-bottom: 10px;
-            }
-            
-            .expense-item {
-                display: flex;
-                justify-content: space-between;
-                padding: 5px 0;
-                color: #fff;
-                border-bottom: 1px solid rgba(255,255,255,0.2);
-            }
-            
-            .total-expense {
-                margin-top: 10px;
-                padding-top: 10px;
-                color: #ffd700;
-                font-size: 18px;
-            }
-            
-            .day-summary {
-                background: rgba(0,0,0,0.2);
-                padding: 15px;
-                border-radius: 8px;
-                color: #fff;
-                margin-bottom: 15px;
-            }
-            
-            .modal-buttons {
-                display: flex;
-                gap: 10px;
-                justify-content: center;
-            }
-            
-            .continue-btn, .restart-btn {
-                padding: 12px 24px;
-                border: none;
-                border-radius: 6px;
-                font-size: 16px;
-                font-weight: bold;
-                cursor: pointer;
-                transition: transform 0.2s;
-            }
-            
-            .continue-btn {
-                background: #4caf50;
-                color: white;
-            }
-            
-            .restart-btn {
-                background: #f44336;
-                color: white;
-            }
-            
-            .continue-btn:hover, .restart-btn:hover {
-                transform: scale(1.05);
-            }
-        `;
-        document.head.appendChild(style);
-        
         return modal;
     }
     
@@ -627,7 +549,6 @@ updateTimeUI() {
     
     getItemDescription(itemName) {
         const descriptions = {
-            // Raw fish
             'salmon': 'Raw salmon fish - needs washing and chopping, then cooking',
             'tuna': 'Raw tuna fish - needs washing and chopping, then cooking',
             'eel': 'Raw eel - needs washing, then cooking',
@@ -636,29 +557,25 @@ updateTimeUI() {
             'yellowtail': 'Raw yellowtail fish - needs washing and chopping, then cooking',
             'mackerel': 'Raw mackerel fish - needs washing and chopping, then cooking',
             'sea_bass': 'Raw sea bass fish - needs washing and chopping, then cooking',
-            
-            // Base ingredients
+
             'rice': 'Uncooked rice - needs cooking',
             'nori': 'Seaweed sheets - ready to use',
             'wasabi': 'Japanese horseradish - ready to use',
             'soy_sauce': 'Fermented soy sauce - ready to use',
             'ginger': 'Fresh ginger root - needs washing, peeling, and chopping',
-            
-            // Raw vegetables
+
             'cucumber': 'Fresh cucumber - needs washing, peeling, and chopping',
             'avocado': 'Fresh avocado - needs washing, peeling, and chopping',
             'carrot': 'Fresh carrot - needs washing, peeling, and chopping',
             'radish': 'Fresh radish - needs washing, peeling, and chopping',
             'asparagus': 'Fresh asparagus - needs washing and chopping',
             'scallion': 'Green onions - needs washing and chopping',
-            
-            // Special ingredients
+
             'sesame_seeds': 'Toasted sesame seeds - ready to use',
             'tempura_batter': 'Light crispy batter - ready to use',
             'cream_cheese': 'Philadelphia-style cream cheese - ready to use',
             'spicy_mayo': 'Spicy mayonnaise sauce - ready to use',
-            
-            // Washed ingredients
+
             'washed_salmon': 'Clean salmon - ready for chopping',
             'washed_tuna': 'Clean tuna - ready for chopping',
             'washed_eel': 'Clean eel - ready for cooking',
@@ -674,15 +591,13 @@ updateTimeUI() {
             'washed_ginger': 'Clean ginger - needs peeling',
             'washed_asparagus': 'Clean asparagus - ready for chopping',
             'washed_scallion': 'Clean scallions - ready for chopping',
-            
-            // Peeled ingredients
+
             'peeled_cucumber': 'Peeled cucumber - ready for chopping',
             'peeled_avocado': 'Peeled avocado - ready for chopping',
             'peeled_carrot': 'Peeled carrot - ready for chopping',
             'peeled_radish': 'Peeled radish - ready for chopping',
             'peeled_ginger': 'Peeled ginger - ready for chopping',
-            
-            // Chopped ingredients
+
             'chopped_salmon': 'Chopped salmon - ready for cooking',
             'chopped_tuna': 'Chopped tuna - ready for cooking',
             'chopped_yellowtail': 'Chopped yellowtail - ready for cooking',
@@ -695,8 +610,7 @@ updateTimeUI() {
             'chopped_ginger': 'Minced ginger - ready for combining',
             'chopped_asparagus': 'Cut asparagus - ready for combining',
             'chopped_scallion': 'Sliced scallions - ready for combining',
-            
-            // Cooked ingredients
+
             'cooked_salmon': 'Perfectly cooked salmon - ready for sushi',
             'cooked_tuna': 'Perfectly seared tuna - ready for sushi',
             'cooked_eel': 'Glazed grilled eel - ready for sushi',
@@ -715,7 +629,6 @@ getProcessingSteps(itemName) {
     const base = this.normalizeName(itemName);
     const stage = this.getIngredientStage(itemName);
 
-    // Define full chain per base ingredient
     const chains = {
         salmon: ["raw","washed","chopped","cooked"],
         tuna: ["raw","washed","chopped","cooked"],
@@ -733,7 +646,6 @@ getProcessingSteps(itemName) {
         radish: ["raw","washed","peeled","chopped"],
         asparagus: ["raw","washed","chopped"],
         scallion: ["raw","washed","chopped"],
-        // “Ready” items
         nori: ["ready"],
         wasabi: ["ready"],
         soy_sauce: ["ready"],
@@ -746,18 +658,16 @@ getProcessingSteps(itemName) {
     const chain = chains[base];
     if (!chain) return "Processing steps unknown";
 
-    // Build chain string with checkmarks ✅
     return chain
       .map(st => {
          if (st === stage) return `✔ ${st.toUpperCase()}`;
          return st.toUpperCase();
       })
       .join(" → ");
-}
+    }
     
     getRecipeProcess(recipeKey) {
         const processes = {
-            // Basic Nigiri
             'salmon_nigiri': {
                 process: '1. Salmon: RAW → WASH → CHOP → COOK\n2. Rice: RAW → COOK\n3. PREP: Combine both ingredients',
                 ingredients: 'Cooked Salmon + Cooked Rice'
@@ -774,8 +684,7 @@ getProcessingSteps(itemName) {
                 process: '1. Yellowtail: RAW → WASH → CHOP → COOK\n2. Rice: RAW → COOK\n3. PREP: Combine both ingredients',
                 ingredients: 'Cooked Yellowtail + Cooked Rice'
             },
-            
-            // Basic Rolls
+
             'tuna_roll': {
                 process: '1. Tuna: RAW → WASH → CHOP → COOK\n2. Rice: RAW → COOK\n3. Get Nori from shop\n4. PREP: Combine all ingredients',
                 ingredients: 'Cooked Tuna + Cooked Rice + Nori'
@@ -792,8 +701,7 @@ getProcessingSteps(itemName) {
                 process: '1. Eel: RAW → WASH → COOK\n2. Avocado: RAW → WASH → PEEL → CHOP\n3. Rice: RAW → COOK\n4. Get Nori from shop\n5. PREP: Combine all ingredients',
                 ingredients: 'Cooked Eel + Chopped Avocado + Cooked Rice + Nori'
             },
-            
-            // Special Rolls
+
             'rainbow_roll': {
                 process: '1. Salmon: RAW → WASH → CHOP → COOK\n2. Tuna: RAW → WASH → CHOP → COOK\n3. Avocado: RAW → WASH → PEEL → CHOP\n4. Rice: RAW → COOK\n5. Get Nori from shop\n6. PREP: Combine all ingredients',
                 ingredients: 'Cooked Salmon + Cooked Tuna + Chopped Avocado + Cooked Rice + Nori'
@@ -810,8 +718,7 @@ getProcessingSteps(itemName) {
                 process: '1. Shrimp: RAW → WASH → COOK\n2. Cucumber: RAW → WASH → PEEL → CHOP\n3. Avocado: RAW → WASH → PEEL → CHOP\n4. Rice: RAW → COOK\n5. Get Nori from shop\n6. PREP: Combine all ingredients',
                 ingredients: 'Cooked Shrimp + Chopped Cucumber + Chopped Avocado + Cooked Rice + Nori'
             },
-            
-            // Tempura Rolls
+
             'shrimp_tempura_roll': {
                 process: '1. Shrimp: RAW → WASH → COOK\n2. Avocado: RAW → WASH → PEEL → CHOP\n3. Rice: RAW → COOK\n4. Get Tempura Batter and Nori from shop\n5. PREP: Combine all ingredients',
                 ingredients: 'Cooked Shrimp + Tempura Batter + Chopped Avocado + Cooked Rice + Nori'
@@ -820,8 +727,7 @@ getProcessingSteps(itemName) {
                 process: '1. Asparagus: RAW → WASH → CHOP\n2. Carrot: RAW → WASH → PEEL → CHOP\n3. Rice: RAW → COOK\n4. Get Tempura Batter and Nori from shop\n5. PREP: Combine all ingredients',
                 ingredients: 'Chopped Asparagus + Chopped Carrot + Tempura Batter + Cooked Rice + Nori'
             },
-            
-            // Spicy Rolls
+
             'spicy_tuna_roll': {
                 process: '1. Tuna: RAW → WASH → CHOP → COOK\n2. Scallion: RAW → WASH → CHOP\n3. Rice: RAW → COOK\n4. Get Spicy Mayo and Nori from shop\n5. PREP: Combine all ingredients',
                 ingredients: 'Cooked Tuna + Spicy Mayo + Chopped Scallion + Cooked Rice + Nori'
@@ -830,8 +736,7 @@ getProcessingSteps(itemName) {
                 process: '1. Salmon: RAW → WASH → CHOP → COOK\n2. Cucumber: RAW → WASH → PEEL → CHOP\n3. Rice: RAW → COOK\n4. Get Spicy Mayo and Nori from shop\n5. PREP: Combine all ingredients',
                 ingredients: 'Cooked Salmon + Spicy Mayo + Chopped Cucumber + Cooked Rice + Nori'
             },
-            
-            // Bowls
+
             'chirashi_bowl': {
                 process: '1. Salmon: RAW → WASH → CHOP → COOK\n2. Tuna: RAW → WASH → CHOP → COOK\n3. Yellowtail: RAW → WASH → CHOP → COOK\n4. Radish: RAW → WASH → PEEL → CHOP\n5. Rice: RAW → COOK\n6. PREP: Combine all ingredients',
                 ingredients: 'Cooked Salmon + Cooked Tuna + Cooked Yellowtail + Cooked Rice + Chopped Radish'
@@ -840,8 +745,7 @@ getProcessingSteps(itemName) {
                 process: '1. Tuna: RAW → WASH → CHOP → COOK\n2. Avocado: RAW → WASH → PEEL → CHOP\n3. Cucumber: RAW → WASH → PEEL → CHOP\n4. Rice: RAW → COOK\n5. Get Sesame Seeds from shop\n6. PREP: Combine all ingredients',
                 ingredients: 'Cooked Tuna + Chopped Avocado + Chopped Cucumber + Cooked Rice + Sesame Seeds'
             },
-            
-            // Premium Dishes
+
             'omakase_platter': {
                 process: '1. Salmon: RAW → WASH → CHOP → COOK\n2. Tuna: RAW → WASH → CHOP → COOK\n3. Yellowtail: RAW → WASH → CHOP → COOK\n4. Eel: RAW → WASH → COOK\n5. Shrimp: RAW → WASH → COOK\n6. Rice: RAW → COOK\n7. PREP: Combine all ingredients',
                 ingredients: 'Cooked Salmon + Cooked Tuna + Cooked Yellowtail + Cooked Eel + Cooked Shrimp + Cooked Rice'
@@ -888,20 +792,14 @@ getProcessingSteps(itemName) {
     }
     
     drawGameObject(obj) {
-        // Draw background color
         this.drawPixelRect(obj.x, obj.y, obj.width, obj.height, obj.color);
-        
-        // Draw emoji for ingredients and dishes
         this.ctx.font = '20px Arial';
         this.ctx.fillStyle = '#fff';
         this.ctx.strokeStyle = '#000';
         this.ctx.lineWidth = 1;
         const emoji = this.getItemEmoji(obj.name);
-        
-        // Center the emoji
         const textX = obj.x + obj.width/2 - 10;
         const textY = obj.y + obj.height/2 + 7;
-        
         this.ctx.strokeText(emoji, textX, textY);
         this.ctx.fillText(emoji, textX, textY);
     }
@@ -914,17 +812,14 @@ getProcessingSteps(itemName) {
         };
     }
 
-    // Prep station click handler
     handlePrepStationClick(workstation, mousePos) {
         if (workstation.name === 'prep' && workstation.ingredients.length > 0 && workstation.cooldown === 0) {
-            // Remove the last ingredient added
             const lastIngredient = workstation.ingredients.pop();
-            
-            // Spawn it back as an ingredient object
+
             const ingredient = {
                 type: 'ingredient',
                 name: lastIngredient,
-                x: mousePos.x - 17, // Center on mouse
+                x: mousePos.x - 17,
                 y: mousePos.y - 17,
                 width: 35,
                 height: 35,
@@ -937,8 +832,7 @@ getProcessingSteps(itemName) {
     
     handleMouseDown(e) {
         this.mousePos = this.getMousePos(e);
-        
-        // Check if clicking on a prep station first
+
         const clickedWorkstation = this.getWorkstationAt(this.mousePos);
         if (clickedWorkstation && clickedWorkstation.name === 'prep' && clickedWorkstation.ingredients.length > 0) {
             this.handlePrepStationClick(clickedWorkstation, this.mousePos);
@@ -977,19 +871,16 @@ getIngredientStage(itemName) {
             this.draggedObject.y = this.mousePos.y - this.draggedObject.height / 2;
             this.hideCanvasTooltip();
         } else {
-            // Check for hover over items or workstations
             let hoveredItem = null;
             let hoveredWorkstation = null;
-            
-            // Check workstations first
+
             for (let obj of this.gameObjects) {
                 if (obj.type === 'workstation' && this.isPointInRect(this.mousePos, obj)) {
                     hoveredWorkstation = obj;
                     break;
                 }
             }
-            
-            // Then check items
+
             if (!hoveredWorkstation) {
                 for (let i = this.gameObjects.length - 1; i >= 0; i--) {
                     const obj = this.gameObjects[i];
@@ -1024,23 +915,23 @@ getIngredientStage(itemName) {
                 const screenX = e.clientX;
                 const screenY = e.clientY;
                 
-                let tooltipContent = '';
-if (hoveredItem.type === 'ingredient') {
-    const baseItem = hoveredItem.name.replace(/^(washed_|peeled_|chopped_|cooked_)/, '');
-    tooltipContent = `
-        <strong>${hoveredItem.name.replace(/_/g, ' ').toUpperCase()}</strong><br>
-        ${this.getItemDescription(hoveredItem.name)}<br><br>
-        <strong>Processing:</strong><br>
-        ${this.getProcessingSteps(baseItem)}
-    `;
-} else if (hoveredItem.type === 'dish') {
-                    const recipeInfo = this.getRecipeProcess(hoveredItem.recipeKey);
-tooltipContent = `
-    <strong>${hoveredItem.name.replace(/_/g, ' ').toUpperCase()}</strong><br>
-    ${this.getItemDescription(hoveredItem.name)}<br><br>
-    <strong>Processing:</strong><br>
-    ${this.getProcessingSteps(hoveredItem.name)}
-`;
+                let tooltipContent = '';    
+            if (hoveredItem.type === 'ingredient') {
+            const baseItem = hoveredItem.name.replace(/^(washed_|peeled_|chopped_|cooked_)/, '');
+                tooltipContent = `
+                    <strong>${hoveredItem.name.replace(/_/g, ' ').toUpperCase()}</strong><br>
+                ${this.getItemDescription(hoveredItem.name)}<br><br>
+                    <strong>Processing:</strong><br>
+                ${this.getProcessingSteps(baseItem)}
+            `;
+            } else if (hoveredItem.type === 'dish') {
+            const recipeInfo = this.getRecipeProcess(hoveredItem.recipeKey);
+                tooltipContent = `
+                    <strong>${hoveredItem.name.replace(/_/g, ' ').toUpperCase()}</strong><br>
+                ${this.getItemDescription(hoveredItem.name)}<br><br>
+                    <strong>Processing:</strong><br>
+                ${this.getProcessingSteps(hoveredItem.name)}
+            `;
                 }
                 
                 this.showCanvasTooltip(screenX, screenY, tooltipContent);
@@ -1115,26 +1006,26 @@ tooltipContent = `
         return processMap[stationName]?.includes(itemName) || false;
     }
     
-processIngredient(item, workstation) {
-    this.removeGameObject(item);
-    workstation.cooldown = workstation.maxCooldown;
+    processIngredient(item, workstation) {
+        this.removeGameObject(item);
+        workstation.cooldown = workstation.maxCooldown;
 
-    if (localStorage.getItem("sfxEnabled") !== "false" && this.sounds[workstation.name]) {
-    const sfx = this.sounds[workstation.name];
-    sfx.currentTime = 0;
-    sfx.play();
-        }
-
-    // 🔊 Start sound (if exists)
-    if (this.sounds[workstation.name]) {
-        const sfx = this.sounds[workstation.name];
-        try {
+        if (localStorage.getItem("sfxEnabled") !== "false" && this.sounds[workstation.name]) {
+            const sfx = this.sounds[workstation.name];
             sfx.currentTime = 0;
             sfx.play();
-        } catch (err) {
-            console.warn("Autoplay blocked:", err);
+            }
+
+        if (this.sounds[workstation.name]) {
+            const sfx = this.sounds[workstation.name];
+            try {
+                sfx.currentTime = 0;
+                sfx.play();
+            } catch (err) {
+                console.warn("Autoplay blocked:", err);
+            }
         }
-    }
+    
 
     setTimeout(() => {
         const processedName = this.getProcessedName(item.name, workstation.name);
@@ -1155,7 +1046,7 @@ processIngredient(item, workstation) {
             this.sounds[workstation.name].currentTime = 0;
         }
     }, workstation.maxCooldown);
-}
+    }   
     
     getProcessedName(itemName, stationName) {
         const processMap = {
@@ -1204,13 +1095,12 @@ processIngredient(item, workstation) {
         return a.length === b.length && a.every((val, i) => val === b[i]);
     }
     
-startCombining(recipe, recipeKey, workstation) {
-    // 🔊 Play "prep" loop
-    if (this.sounds.prep) {
-        const sfx = this.sounds.prep;
-        sfx.currentTime = 0;
-        sfx.play();
-    }
+    startCombining(recipe, recipeKey, workstation) {
+        if (this.sounds.prep) {
+            const sfx = this.sounds.prep;
+            sfx.currentTime = 0;
+            sfx.play();
+        }
 
     setTimeout(() => {
         const dish = {
@@ -1261,7 +1151,6 @@ startCombining(recipe, recipeKey, workstation) {
     }
     
     spawnIngredient(type) {
-        // Remove all tooltips first
         this.removeInventoryTooltips();
         
         if (this.inventory[type] > 0) {
@@ -1284,7 +1173,6 @@ startCombining(recipe, recipeKey, workstation) {
     
     getIngredientColor(type) {
         const colors = {
-            // Fish colors
             'salmon': '#ff6b6b', 'washed_salmon': '#ff5252', 'chopped_salmon': '#ff4444', 'cooked_salmon': '#d32f2f',
             'tuna': '#8b0000', 'washed_tuna': '#660000', 'chopped_tuna': '#550000', 'cooked_tuna': '#330000',
             'eel': '#4b0082', 'washed_eel': '#5e35b1', 'cooked_eel': '#7e57c2',
@@ -1293,23 +1181,20 @@ startCombining(recipe, recipeKey, workstation) {
             'yellowtail': '#ffeb3b', 'washed_yellowtail': '#fdd835', 'chopped_yellowtail': '#fbc02d', 'cooked_yellowtail': '#f9a825',
             'mackerel': '#607d8b', 'washed_mackerel': '#546e7a', 'chopped_mackerel': '#455a64', 'cooked_mackerel': '#37474f',
             'sea_bass': '#00bcd4', 'washed_sea_bass': '#00acc1', 'chopped_sea_bass': '#0097a7', 'cooked_sea_bass': '#00838f',
-            
-            // Base ingredients
+
             'rice': '#f4f4f4', 'cooked_rice': '#fff9c4',
             'nori': '#2d5016',
             'wasabi': '#4caf50',
             'soy_sauce': '#3e2723',
             'ginger': '#ff8a65', 'washed_ginger': '#ff7043', 'peeled_ginger': '#ff5722', 'chopped_ginger': '#d84315',
-            
-            // Vegetables
+
             'cucumber': '#4caf50', 'washed_cucumber': '#43a047', 'peeled_cucumber': '#388e3c', 'chopped_cucumber': '#2e7d32',
             'avocado': '#8bc34a', 'washed_avocado': '#7cb342', 'peeled_avocado': '#689f38', 'chopped_avocado': '#558b2f',
             'carrot': '#ff9800', 'washed_carrot': '#f57c00', 'peeled_carrot': '#ef6c00', 'chopped_carrot': '#e65100',
             'radish': '#e91e63', 'washed_radish': '#d81b60', 'peeled_radish': '#c2185b', 'chopped_radish': '#ad1457',
             'asparagus': '#689f38', 'washed_asparagus': '#558b2f', 'chopped_asparagus': '#33691e',
             'scallion': '#4caf50', 'washed_scallion': '#43a047', 'chopped_scallion': '#388e3c',
-            
-            // Special ingredients
+
             'sesame_seeds': '#f5f5f5',
             'tempura_batter': '#fff3e0',
             'cream_cheese': '#fffde7',
@@ -1856,6 +1741,71 @@ function openModal(modalId) {
         modal.style.display = 'block';
     }
 }
+
+let musicPlayer = {
+  currentAudio: null,
+  playlist: [],
+
+  init() {
+    const upload = document.getElementById("songUpload");
+
+    upload.addEventListener("change", (e) => {
+      for (let file of e.target.files) {
+        if (file.type === "audio/mp3" || file.type === "audio/mpeg") {
+          const url = URL.createObjectURL(file);
+          this.playlist.push({ name: file.name, url });
+        }
+      }
+      this.renderList();
+    });
+  },
+
+  renderList() {
+    const list = document.getElementById("songList");
+    list.innerHTML = "";
+
+    this.playlist.forEach((song, i) => {
+      const songDiv = document.createElement("div");
+      songDiv.className = "song-entry";
+      songDiv.innerHTML = `
+          <span>🎶 ${song.name}</span>
+          <div>
+            <button onclick="musicPlayer.play(${i})">▶️ Play</button>
+            <button onclick="musicPlayer.stop()">⏹ Stop</button>
+          </div>
+        `;
+      list.appendChild(songDiv);
+    });
+  },
+
+  play(index) {
+    // Stop current song
+    if (this.currentAudio) {
+      this.currentAudio.pause();
+      this.currentAudio = null;
+    }
+    // Play new one
+    this.currentAudio = new Audio(this.playlist[index].url);
+    this.currentAudio.play();
+  },
+
+  stop() {
+    if (this.currentAudio) {
+      this.currentAudio.pause();
+      this.currentAudio = null;
+    }
+  },
+};
+
+// Open jukebox modal on click
+document.getElementById("jukeboxBtn")?.addEventListener("click", () => {
+  openModal("jukeboxModal");
+});
+
+// Init player when game loads
+window.addEventListener("load", () => {
+  if (musicPlayer) musicPlayer.init();
+});
 
 function applySettings() {
     if (!game) return;
