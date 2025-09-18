@@ -794,3 +794,26 @@
   box-shadow: none;
 }
 
+#disclaimerModal .modal-content {
+  max-width: 600px;
+  background: linear-gradient(135deg, #222, #444);
+  color: white;
+  padding: 25px;
+  border-radius: 8px;
+  border: 3px solid #ffd700;
+  box-shadow: 0 0 20px rgba(0,0,0,0.6);
+}
+
+#disclaimerModal h2 {
+  margin: 0;
+  font-size: 22px;
+  text-shadow: 1px 1px 4px black;
+}
+
+#disclaimerModal .tutorial-step {
+  margin-top: 15px;
+}
+
+#disclaimerModal ul {
+  margin: 5px 0 5px 20px;
+}

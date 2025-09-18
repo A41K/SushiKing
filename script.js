@@ -91,7 +91,31 @@ class SushiGame {
             { id: 'sesame_seeds', name: '⚪ Sesame Seeds', price: 3, emoji: '⚪' },
             { id: 'tempura_batter', name: '🥄 Tempura Batter', price: 7, emoji: '🥄' },
             { id: 'cream_cheese', name: '🧀 Cream Cheese', price: 6, emoji: '🧀' },
-            { id: 'spicy_mayo', name: '🌶️ Spicy Mayo', price: 5, emoji: '🌶️' }
+            { id: 'spicy_mayo', name: '🌶️ Spicy Mayo', price: 5, emoji: '🌶️' },
+
+              // Italian
+            { id: 'mozzarella', name: '🧀 Mozzarella', price: 7, emoji: '🧀' },
+            { id: 'tomato_sauce', name: '🍅 Tomato Sauce', price: 5, emoji: '🍅' },
+            { id: 'basil', name: '🌿 Basil', price: 3, emoji: '🌿' },
+            { id: 'pasta', name: '🍝 Pasta', price: 6, emoji: '🍝' },
+
+            // Mexican
+            { id: 'tortilla', name: '🌮 Tortilla', price: 4, emoji: '🌮' },
+            { id: 'beef', name: '🥩 Beef', price: 12, emoji: '🥩' },
+            { id: 'cheddar', name: '🧀 Cheddar', price: 7, emoji: '🧀' },
+            { id: 'salsa', name: '🌶️ Salsa', price: 5, emoji: '🌶️' },
+
+            // Indian
+            { id: 'curry_sauce', name: '🍛 Curry Sauce', price: 8, emoji: '🍛' },
+            { id: 'lentils', name: '🫘 Lentils', price: 5, emoji: '🫘' },
+            { id: 'paneer', name: '🧀 Paneer', price: 10, emoji: '🧀' },
+            { id: 'naan', name: '🥙 Naan Bread', price: 6, emoji: '🥙' },
+
+            // French
+            { id: 'butter', name: '🧈 Butter', price: 4, emoji: '🧈' },
+            { id: 'egg', name: '🥚 Egg', price: 2, emoji: '🥚' },
+            { id: 'milk', name: '🥛 Milk', price: 3, emoji: '🥛' },
+            { id: 'flour', name: '🌾 Flour', price: 2, emoji: '🌾' }
         ];
         
         this.recipes = {
@@ -227,6 +251,84 @@ class SushiGame {
                 combineTime: 6000,
                 sellPrice: 75,
                 name: 'Deluxe Sashimi'
+            },
+            'margherita_pizza': {
+                ingredients: ['flour', 'tomato_sauce', 'mozzarella', 'basil'],
+                combineTime: 8000,
+                sellPrice: 55,
+                name: 'Margherita Pizza',
+                unlockDay: 5,
+                process: '1. Make Dough: FLOUR → PREP\n2. Add TOMATO SAUCE + MOZZARELLA + BASIL\n3. BAKE until crispy'
+            },
+            'spaghetti_bolognese': {
+                ingredients: ['pasta', 'tomato_sauce', 'beef'],
+                combineTime: 6000,
+                sellPrice: 50,
+                name: 'Spaghetti Bolognese',
+                unlockDay: 5,
+                process: '1. COOK Pasta\n2. COOK Beef\n3. Combine with Tomato Sauce in PREP'
+            },
+
+            // --- Mexican ---
+            'beef_taco': {
+                ingredients: ['tortilla', 'beef', 'cheddar', 'salsa'],
+                combineTime: 5000,
+                sellPrice: 40,
+                name: 'Beef Taco',
+                unlockDay: 7,
+                process: '1. COOK Beef\n2. Add Tortilla + Salsa + Cheddar in PREP'
+            },
+            'quesadilla': {
+                ingredients: ['tortilla', 'cheddar'],
+                combineTime: 4000,
+                sellPrice: 30,
+                name: 'Quesadilla',
+                unlockDay: 7,
+                process: '1. Place Tortilla + Cheddar in PREP\n2. COOK until melted'
+            },
+
+            // --- Indian ---
+            'chicken_curry': {
+                ingredients: ['curry_sauce', 'rice'],
+                combineTime: 7000,
+                sellPrice: 60,
+                name: 'Chicken Curry',
+                unlockDay: 9,
+                process: '1. COOK Rice\n2. Prepare Curry Sauce\n3. Combine in PREP'
+            },
+            'dal_tadka': {
+                ingredients: ['lentils', 'curry_sauce'],
+                combineTime: 6000,
+                sellPrice: 45,
+                name: 'Dal Tadka',
+                unlockDay: 9,
+                process: '1. COOK Lentils\n2. Add Curry Sauce in PREP'
+            },
+            'paneer_naan': {
+                ingredients: ['paneer', 'naan', 'curry_sauce'],
+                combineTime: 6500,
+                sellPrice: 55,
+                name: 'Paneer with Naan',
+                unlockDay: 9,
+                process: '1. PREP Naan Bread\n2. Add Paneer + Curry Sauce\n3. BAKE together'
+            },
+
+            // --- French ---
+            'crepes': {
+                ingredients: ['flour', 'egg', 'milk', 'butter'],
+                combineTime: 5000,
+                sellPrice: 35,
+                name: 'French Crepes',
+                unlockDay: 12,
+                process: '1. Make batter: MIX Flour + Egg + Milk + Butter\n2. COOK on hot plate'
+            },
+            'omelette': {
+                ingredients: ['egg', 'butter', 'milk'],
+                combineTime: 3000,
+                sellPrice: 25,
+                name: 'Omelette',
+                unlockDay: 12,
+                process: '1. MIX eggs + milk\n2. COOK with butter until set'
             }
         };
 
@@ -753,6 +855,42 @@ getProcessingSteps(itemName) {
             'deluxe_sashimi': {
                 process: '1. Salmon: RAW → WASH → CHOP → COOK\n2. Tuna: RAW → WASH → CHOP → COOK\n3. Sea Bass: RAW → WASH → CHOP → COOK\n4. Radish: RAW → WASH → PEEL → CHOP\n5. Get Wasabi and Ginger from shop\n6. PREP: Combine all ingredients',
                 ingredients: 'Cooked Salmon + Cooked Tuna + Cooked Sea Bass + Chopped Radish + Wasabi + Ginger'
+            },
+            'margherita_pizza': {
+                process: '1. Dough: FLOUR → PREP\n2. Add TOMATO SAUCE + MOZZARELLA + BASIL\n3. BAKE until crispy',
+                ingredients: 'Flour + Tomato Sauce + Mozzarella + Basil'
+            },
+            'spaghetti_bolognese': {
+                process: '1. Pasta: RAW → COOK\n2. Beef: RAW → COOK\n3. PREP: Combine with Tomato Sauce',
+                ingredients: 'Pasta + Cooked Beef + Tomato Sauce'
+            },
+            'beef_taco': {
+                process: '1. Beef: RAW → COOK\n2. PREP: Add Tortilla + Salsa + Cheddar',
+                ingredients: 'Tortilla + Cooked Beef + Salsa + Cheddar'
+            },
+            'quesadilla': {
+                process: '1. PREP: Place Tortilla + Cheddar\n2. COOK until melted',
+                ingredients: 'Tortilla + Cheddar'
+            },
+            'chicken_curry': {
+                process: '1. Rice: RAW → COOK\n2. Curry Sauce from shop\n3. PREP: Combine',
+                ingredients: 'Cooked Rice + Curry Sauce'
+            },
+            'dal_tadka': {
+                process: '1. Lentils: RAW → COOK\n2. PREP: Add Curry Sauce',
+                ingredients: 'Cooked Lentils + Curry Sauce'
+            },
+            'paneer_naan': {
+                process: '1. PREP: Naan + Paneer + Curry Sauce\n2. BAKE until done',
+                ingredients: 'Naan + Paneer + Curry Sauce'
+            },
+            'crepes': {
+                process: '1. PREP: Mix Flour + Egg + Milk + Butter\n2. COOK on hot surface',
+                ingredients: 'Flour + Egg + Milk + Butter'
+            },
+            'omelette': {
+                process: '1. PREP: Mix Egg + Milk\n2. COOK with Butter until set',
+                ingredients: 'Egg + Milk + Butter'
             }
         };
         
@@ -1253,7 +1391,15 @@ getIngredientStage(itemName) {
         'Tuna Roll': '🍙', 'Salmon Roll': '🍙', 'California Roll': '🍱', 'Dragon Roll': '🐉',
         'Rainbow Roll': '🌈', 'Spider Roll': '🕷️', 'Philadelphia Roll': '🧀', 'Boston Roll': '🦐',
         'Shrimp Tempura Roll': '🍤', 'Vegetable Tempura Roll': '🥬', 'Spicy Tuna Roll': '🌶️', 'Spicy Salmon Roll': '🌶️',
-        'Chirashi Bowl': '🍱', 'Poke Bowl': '🥗', 'Omakase Platter': '🍽️', 'Deluxe Sashimi': '🍣'
+        'Chirashi Bowl': '🍱', 'Poke Bowl': '🥗', 'Omakase Platter': '🍽️', 'Deluxe Sashimi': '🍣',
+
+        'mozzarella': '🧀', 'tomato_sauce': '🍅', 'basil': '🌿', 'pasta': '🍝', 'tortilla': '🌮', 'beef': '🥩',
+        'cheddar': '🧀', 'salsa': '🌶️', 'curry_sauce': '🍛', 'lentils': '🫘', 'paneer': '🧀', 'naan': '🥙', 'butter': '🧈', 
+        'egg': '🥚', 'milk': '🥛', 'flour': '🌾',
+
+        // dishes
+        'margherita_pizza': '🍕', 'spaghetti_bolognese': '🍝', 'beef_taco': '🌮', 'quesadilla': '🫓',
+        'chicken_curry': '🍛', 'dal_tadka': '🫘', 'paneer_naan': '🥘', 'crepes': '🥞', 'omelette': '🍳'
     };
     return emojis[type] || '📦';
     }
@@ -1267,9 +1413,16 @@ getIngredientStage(itemName) {
         
         setTimeout(() => this.generateOrder(), 10000);
     }
-    
+        
     generateOrder() {
-        const recipeKeys = Object.keys(this.recipes);
+        const recipeKeys = Object.keys(this.recipes)
+            .filter(key => {
+                const recipe = this.recipes[key];
+                return !recipe.unlockDay || recipe.unlockDay <= this.currentDay;
+            });
+
+        if (recipeKeys.length === 0) return;
+
         const randomRecipe = recipeKeys[Math.floor(Math.random() * recipeKeys.length)];
         const recipe = this.recipes[randomRecipe];
         
@@ -1828,6 +1981,21 @@ function closeModal(modalId) {
         modal.style.display = 'none';
     }
 }
+
+function closeDisclaimer(persist = false) {
+    document.getElementById("disclaimerModal").style.display = "none";
+    if (persist) {
+        localStorage.setItem("disclaimerShown", "true");
+    }
+}
+
+// Show disclaimer only on very first load
+window.addEventListener("load", () => {
+    if (!localStorage.getItem("disclaimerShown")) {
+        const modal = document.getElementById("disclaimerModal");
+        if (modal) modal.style.display = "block";
+    }
+});
 
 function saveGame() {
     if (game) {

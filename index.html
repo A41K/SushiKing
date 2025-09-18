@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sushi Master - Pixel Restaurant Simulator</title>
+    <title>CookMaster - Pixel Restaurant Simulator</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div id="gameContainer">
         <div id="header">
-            <h1>🍣 SUSHI MASTER 🍣</h1>
+            <h1>🎛️ COOKING MASTER 🍔</h1>
             <div id="headerButtons">
                 <button class="pixel-btn shop" onclick="openModal('shopModal')">SHOP</button>
                 <button class="pixel-btn tutorial" onclick="openModal('tutorialModal')">TUTORIAL</button>
@@ -28,7 +28,7 @@
             </div>
             <div class="status-item">
                 <span class="status-label">⏰ TIME LEFT:</span>
-                <span id="timeLeft" class="status-value">5:00</span>
+                <span id="timeLeft" class="status-value">6:00</span>
             </div>
             <div class="status-item">
                 <span class="status-label">💰 MONEY:</span>
@@ -59,10 +59,58 @@
         </div>
     </div>
 
-<!-- Floating Jukebox Panel -->
-<div id="jukeboxPanel">
-  <img src="texture/Jukebox.webp" id="jukeboxBtn" alt="Jukebox">
-</div>
+    <!-- Disclaimer / First-Time Info Modal -->
+    <div id="disclaimerModal" class="modal">
+    <div class="modal-content">
+        <h2 style="text-align:center; color:#ffd700;">📢 Welcome to Cooking Master! <span style="color: red;">(PLEASE READ THIS)</span></h2>
+        <p style="color:white; line-height:1.6; margin-top:15px;">
+        This is a <strong>Pixel restaurant simulator</strong> where you must run your 
+        own international kitchen! Learn recipes, prepare dishes step by step, 
+        and serve customers before time runs out.
+        </p>
+
+        <div class="tutorial-step">
+        <h3>⏳ Why is this here?</h3>
+        <p style="color: red; font-size: large;">This was added as a precaution because I saw a lot of players didn't understand how this worked
+            so I made this small disclaimer to explain everything in detail.
+        </p>
+        </div>
+
+        <div class="tutorial-step">
+        <h3>🎯 Objective</h3>
+        <p>Survive as many days as possible! Each day you’ll need to earn 
+        enough money to pay your daily expenses.</p>
+        </div>
+
+        <div class="tutorial-step">
+        <h3>⚙️ How to Play</h3>
+        <ul style="color:#fff; font-size:14px; line-height:1.4;">
+            <li>📦 Buy ingredients from the <strong>Shop</strong> (SHOP button).</li>
+            <li>🖱️ Click inventory items to spawn on canvas, drag them to stations.</li>
+            <li>🍽️ Hover over items to see their recipes and how to make them</li>
+            <li>📋 Match customer orders for bonus money!</li>
+            <li>⏰ Keep an eye on the daily timer and order deadlines.</li>
+            <li>💸 Pay your daily expenses before the day ends!</li>
+            <li>🙌 Most importantly Have Fun</li>
+        </ul>
+        </div>
+
+        <div class="tutorial-step">
+        <h3>🌍 Unlocking Recipes</h3>
+        <p>As you progress through days, you’ll unlock <strong>new cuisines</strong> 
+        — Japanese, Italian, Mexican, Indian, French and more!</p>
+        </div>
+
+        <div style="text-align:center; margin-top:20px;">
+        <button class="pixel-btn" onclick="closeDisclaimer(true)">✅ Let’s Cook!</button>
+        </div>
+    </div>
+    </div>
+
+    <!-- Floating Jukebox Panel -->
+    <div id="jukeboxPanel">
+    <img src="texture/Jukebox.webp" id="jukeboxBtn" alt="Jukebox">
+    </div>
 
     <!-- Settings Modal -->
     <div id="settingsModal" class="modal">
