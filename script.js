@@ -117,6 +117,41 @@ class SushiGame {
             { id: 'milk', name: '🥛 Milk', price: 3, emoji: '🥛' },
             { id: 'flour', name: '🌾 Flour', price: 2, emoji: '🌾' }
         ];
+
+        this.upgrades = [
+            {
+                id: "faster_chop",
+                name: "🔪 Faster Chopping",
+                description: "Reduce chop cooldown by 30%.",
+                price: 200,
+                maxLevel: 3,
+                level: 0,
+            },
+            {
+                id: "faster_cook",
+                name: "🔥 Faster Cooking",
+                description: "Reduce cooking cooldown by 30%.",
+                price: 250,
+                maxLevel: 3,
+                level: 0,
+            },
+            {
+                id: "better_orders",
+                name: "💰 Wealthy Customers",
+                description: "Orders pay 20% more.",
+                price: 300,
+                maxLevel: 2,
+                level: 0,
+            },
+            {
+                id: "rush_orders",
+                name: "⚡ Faster Customers",
+                description: "Orders appear 25% quicker.",
+                price: 150,
+                maxLevel: 2,
+                level: 0,
+            },
+            ];
         
         this.recipes = {
             // Basic Nigiri
@@ -434,6 +469,57 @@ async loadTextures() {
     console.log("🧹 FULL HARD RESET DONE");
     }
     
+
+    applyUpgradeEffects() {
+    // Default stats
+    this.ordersPayMultiplier = 1;
+    this.orderInterval = 6000; // ms default
+
+    const chopStation = this.getWorkstation("chop");
+    const cookStation = this.getWorkstation("cook");
+
+    if (chopStation) chopStation.maxCooldown = 3000;
+    if (cookStation) cookStation.maxCooldown = 4000;
+
+    // Apply upgrades
+    this.upgrades.forEach((up) => {
+        if (up.id === "faster_chop" && up.level > 0 && chopStation) {
+        chopStation.maxCooldown = 3000 * (1 - 0.3 * up.level);
+        }
+        if (up.id === "faster_cook" && up.level > 0 && cookStation) {
+        cookStation.maxCooldown = 4000 * (1 - 0.3 * up.level);
+        }
+        if (up.id === "better_orders" && up.level > 0) {
+        this.ordersPayMultiplier = 1 + 0.2 * up.level;
+        }
+        if (up.id === "rush_orders" && up.level > 0) {
+        this.orderInterval = 6000 - 1500 * up.level;
+        }
+    });
+    }
+
+    getWorkstation(name) {
+    return this.gameObjects.find(
+        (w) => w.type === "workstation" && w.name === name
+    );
+    }
+
+    buyUpgrade(upgradeId) {
+    const upgrade = this.upgrades.find((u) => u.id === upgradeId);
+    if (!upgrade) return;
+
+    if (this.money >= upgrade.price && upgrade.level < upgrade.maxLevel) {
+        this.money -= upgrade.price;
+        upgrade.level++;
+        upgrade.price = Math.floor(upgrade.price * 1.5);
+        this.applyUpgradeEffects();
+        this.updateUI();
+        this.populateShop();
+        this.saveGame();
+    } else {
+        alert("❌ Not enough money or already max level!");
+    }
+    }
     createWorkstations() {
         const stations = [
             { name: 'wash', x: 50, y: 80, color: '#4fc3f7', maxCooldown: 2000 },
@@ -460,24 +546,71 @@ async loadTextures() {
         });
     }
     
-    populateShop() {
-        const shopGrid = document.getElementById('shopGrid');
+        populateShop() {
+        const shopGrid = document.getElementById("shopGrid");
         if (!shopGrid) return;
-        
-        shopGrid.innerHTML = '';
-        
-        this.shopItems.forEach(item => {
-            const shopItem = document.createElement('div');
-            shopItem.className = 'shop-item';
+
+        shopGrid.innerHTML = "";
+
+        // --- Ingredient Section ---
+        const ingSection = document.createElement("div");
+        ingSection.style.textAlign = "center";
+        ingSection.style.marginBottom = "20px";
+
+        const ingTitle = document.createElement("h3");
+        ingTitle.textContent = "🛒 INGREDIENTS";
+        ingTitle.style.color = "#ffd700";
+        ingTitle.style.marginBottom = "10px";
+        ingSection.appendChild(ingTitle);
+
+        const ingGrid = document.createElement("div");
+        ingGrid.className = "shop-grid-inner";
+        ingSection.appendChild(ingGrid);
+
+        this.shopItems.forEach((item) => {
+            const shopItem = document.createElement("div");
+            shopItem.className = "shop-item";
             shopItem.innerHTML = `
-                <div style="font-size: 24px;">${item.emoji}</div>
-                <div style="font-size: 10px; margin: 5px 0;">${item.name}</div>
-                <div class="price">$${item.price}</div>
+            <div style="font-size: 20px;">${item.emoji}</div>
+            <div style="font-size: 9px; margin: 3px 0;">${item.name}</div>
+            <div class="price">$${item.price}</div>
             `;
             shopItem.onclick = () => this.buyItem(item.id, item.price);
-            shopGrid.appendChild(shopItem);
+            ingGrid.appendChild(shopItem);
         });
-    }
+
+        shopGrid.appendChild(ingSection);
+
+        // --- Upgrade Section ---
+        const upSection = document.createElement("div");
+        upSection.style.textAlign = "center";
+        upSection.style.marginTop = "30px";
+
+        const upTitle = document.createElement("h3");
+        upTitle.textContent = "⚙️ UPGRADES";
+        upTitle.style.color = "#4fc3f7";
+        upTitle.style.marginBottom = "10px";
+        upSection.appendChild(upTitle);
+
+        const upGrid = document.createElement("div");
+        upGrid.className = "shop-grid-inner";
+        upSection.appendChild(upGrid);
+
+        this.upgrades.forEach((up) => {
+        const upItem = document.createElement("div");
+        upItem.className = "upgrade-item";
+        upItem.innerHTML = `
+            <div class="upgrade-name">${up.name}</div>
+            <div class="upgrade-desc">${up.description}</div>
+            <div class="upgrade-level">Lvl: ${"⭐".repeat(up.level)} (${up.level}/${up.maxLevel})</div>
+            <div class="price">$${up.price}</div>
+        `;
+        upItem.onclick = () => this.buyUpgrade(up.id);
+        upGrid.appendChild(upItem);
+        });
+
+        shopGrid.appendChild(upSection);
+        }
 
     getTotalDailyExpenses() {
         return Object.values(this.dailyExpenses).reduce((sum, expense) => sum + expense, 0);
@@ -1405,13 +1538,15 @@ getIngredientStage(itemName) {
     }
     
     startOrderGeneration() {
-        setInterval(() => {
-            if (this.orders.length < 3) {
-                this.generateOrder();
-            }
-         }, 6000 + Math.random() * 3000);
-        
-        setTimeout(() => this.generateOrder(), 10000);
+    if (this.orderTimer) clearInterval(this.orderTimer);
+
+    this.orderTimer = setInterval(() => {
+        if (this.orders.length < 3) {
+        this.generateOrder();
+        }
+    }, this.orderInterval);
+
+    setTimeout(() => this.generateOrder(), 5000);
     }
         
     generateOrder() {
@@ -1752,7 +1887,8 @@ getIngredientStage(itemName) {
             inventory: this.inventory,
             orders: this.orders,
             nextOrderId: this.nextOrderId,
-            timeLeft: this.timeLeft,  
+            timeLeft: this.timeLeft,
+            upgrades: this.upgrades,  
         };
         localStorage.setItem('sushiGameSave', JSON.stringify(gameState));
     }
@@ -1776,6 +1912,10 @@ loadGame() {
 
             if (typeof gameState.dayDuration === "number") {
                 this.dayDuration = gameState.dayDuration;
+            }
+            if (gameState.upgrades) {
+            this.upgrades = gameState.upgrades;
+            this.applyUpgradeEffects();
             }
 
             this.updateUI();

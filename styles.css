@@ -228,6 +228,18 @@
             overflow-y: auto;
             box-shadow: 5px 5px #000;
         }
+
+        .shop-modal {
+            background: #40407a;
+            margin: 5% auto;
+            padding: 20px;
+            border: 4px solid #fff;
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 5px 5px #000;
+        }
         
         .close {
             color: #fff;
@@ -250,22 +262,30 @@
         }
         
         .shop-item {
-            background: #2c2c54;
-            border: 2px solid #fff;
-            padding: 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.1s;
+        background: #2c2c54;
+        border: 2px solid #fff;
+        border-radius: 4px;
+        padding: 6px;
+        width: 90px;     /* Adjust so 3 fit side by side */
+        height: 90px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.15s ease;
         }
-        
+
         .shop-item:hover {
-            background: #3c3c64;
-            transform: scale(1.05);
+        transform: scale(1.08);
+        border-color: #ffd700;
         }
-        
+
         .shop-item .price {
-            color: #ffd700;
-            margin-top: 5px;
+        font-size: 11px;
+        font-weight: bold;
+        color: gold;
+        margin-top: 4px;
         }
         
         .tutorial-step {
@@ -816,4 +836,58 @@
 
 #disclaimerModal ul {
   margin: 5px 0 5px 20px;
+}
+
+.shop-grid-inner {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 items per row */
+  gap: 10px;
+  justify-items: center;
+}
+
+.upgrade-item {
+  background: #1e2a4a;     /* darker blue to separate from ingredients */
+  border: 2px solid #4fc3f7;
+  border-radius: 4px;
+  padding: 8px;
+  width: 120px;            /* wider so text fits */
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+  text-align: center;
+}
+
+.upgrade-item:hover {
+  transform: scale(1.05);
+  border-color: #ffd700;
+}
+
+.upgrade-item .upgrade-name {
+  font-size: 12px;
+  font-weight: bold;
+  color: #ffd700;
+  margin-bottom: 5px;
+}
+
+.upgrade-item .upgrade-desc {
+  font-size: 9px;
+  color: #fff;
+  margin-bottom: 5px;
+  line-height: 1.2;
+}
+
+.upgrade-item .upgrade-level {
+  font-size: 9px;
+  color: #81c784;
+  margin-bottom: 5px;
+}
+
+.upgrade-item .price {
+  font-size: 11px;
+  font-weight: bold;
+  color: #ffd700;
 }
