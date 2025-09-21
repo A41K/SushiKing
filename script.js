@@ -388,7 +388,7 @@ async loadTextures() {
                 resolve();
             };
             img.onerror = () => {
-                console.warn(`Failed to load texture: ${fileName}.png`);
+                console.warn(`Failed to load texture: ${fileName}.jpg`);
                 const canvas = document.createElement('canvas');
                 canvas.width = 100;
                 canvas.height = 70;
@@ -398,7 +398,7 @@ async loadTextures() {
                 this.textures[fileName] = canvas;
                 resolve();
             };
-            img.src = `https://a41k.me/SushiKing/texture/${fileName}.png`;
+            img.src = `https://a41k.me/SushiKing/textures/${fileName}.jpg`;
         });
     });
 
@@ -2042,6 +2042,14 @@ let musicPlayer = {
   init() {
     const upload = document.getElementById("songUpload");
 
+    // ✅ Volume slider event
+    const volumeSlider = document.getElementById("volumeControl");
+    if (volumeSlider) {
+      volumeSlider.addEventListener("input", (e) => {
+        this.setVolume(parseFloat(e.target.value));
+      });
+    }
+
     upload.addEventListener("change", (e) => {
       for (let file of e.target.files) {
         if (file.type === "audio/mp3" || file.type === "audio/mpeg") {
@@ -2072,13 +2080,18 @@ let musicPlayer = {
   },
 
   play(index) {
-    // Stop current song
     if (this.currentAudio) {
       this.currentAudio.pause();
       this.currentAudio = null;
     }
-    // Play new one
     this.currentAudio = new Audio(this.playlist[index].url);
+
+    // ✅ Apply current slider volume on playback start
+    const volumeSlider = document.getElementById("volumeControl");
+    if (volumeSlider) {
+      this.currentAudio.volume = parseFloat(volumeSlider.value);
+    }
+
     this.currentAudio.play();
   },
 
@@ -2086,6 +2099,12 @@ let musicPlayer = {
     if (this.currentAudio) {
       this.currentAudio.pause();
       this.currentAudio = null;
+    }
+  },
+
+  setVolume(level) {
+    if (this.currentAudio) {
+      this.currentAudio.volume = level;
     }
   },
 };
