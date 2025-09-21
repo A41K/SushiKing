@@ -2,7 +2,7 @@ class SushiGame {
     constructor() {
         this.canvas = document.getElementById('gameCanvas');
         this.ctx = this.canvas.getContext('2d');
-        this.money = 100;
+        this.money = 150;
         this.inventory = {};
         this.gameObjects = [];
         this.draggedObject = null;
@@ -398,7 +398,7 @@ async loadTextures() {
                 this.textures[fileName] = canvas;
                 resolve();
             };
-            img.src = `/textures/${fileName}.png`;
+            img.src = `https://a41k.me/SushiKing/textures/${fileName}.png`;
         });
     });
 
@@ -452,7 +452,7 @@ async loadTextures() {
         localStorage.removeItem('sfxEnabled');
         localStorage.removeItem('dayLength');
 
-        this.money = 100;
+        this.money = 150;
         this.currentDay = 1;
         this.timeLeft = this.dayDuration;
         this.gameOver = false;
@@ -749,7 +749,7 @@ async loadTextures() {
     }
     
     restartGame() {
-        this.money = 100;
+        this.money = 150;
         this.currentDay = 1;
         this.timeLeft = this.dayDuration;
         this.gameOver = false;
@@ -1888,7 +1888,8 @@ getIngredientStage(itemName) {
             orders: this.orders,
             nextOrderId: this.nextOrderId,
             timeLeft: this.timeLeft,
-            upgrades: this.upgrades,  
+            upgrades: this.upgrades,
+            playlist: musicPlayer.exportPlaylist(), // ✅ New  
         };
         localStorage.setItem('sushiGameSave', JSON.stringify(gameState));
     }
@@ -1898,7 +1899,7 @@ loadGame() {
     if (saved) {
         try {
             const gameState = JSON.parse(saved);
-            this.money = gameState.money ?? 100;
+            this.money = gameState.money ?? 150;
             this.inventory = gameState.inventory ?? {};
             this.orders = gameState.orders ?? [];
             this.nextOrderId = gameState.nextOrderId ?? 1;
@@ -2035,12 +2036,16 @@ function openModal(modalId) {
     }
 }
 
+
+
 let musicPlayer = {
   currentAudio: null,
   playlist: [],
 
   init() {
     const upload = document.getElementById("songUpload");
+
+
 
     // ✅ Volume slider event
     const volumeSlider = document.getElementById("volumeControl");
@@ -2051,13 +2056,18 @@ let musicPlayer = {
     }
 
     upload.addEventListener("change", (e) => {
-      for (let file of e.target.files) {
-        if (file.type === "audio/mp3" || file.type === "audio/mpeg") {
-          const url = URL.createObjectURL(file);
-          this.playlist.push({ name: file.name, url });
+    for (let file of e.target.files) {
+        // ✅ Broader type/extension check
+        if (
+        file.type.startsWith("audio/") ||
+        file.type.startsWith("video/") ||
+        /\.(mp3|flac|wav|ogg|avi|wmv|mp4)$/i.test(file.name) // fallback if type missing
+        ) {
+        const url = URL.createObjectURL(file);
+        this.playlist.push({ name: file.name, url, type: file.type });
         }
-      }
-      this.renderList();
+    }
+    this.renderList();
     });
   },
 
