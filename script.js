@@ -388,17 +388,17 @@ async loadTextures() {
                 resolve();
             };
             img.onerror = () => {
-                console.warn(`Failed to load texture: ${fileName}.jpg`);
+                console.warn(`Failed to load texture: ${fileName}.png`);
                 const canvas = document.createElement('canvas');
-                canvas.width = 100;
-                canvas.height = 70;
+                canvas.width = 60;
+                canvas.height = 60;
                 const ctx = canvas.getContext('2d');
                 ctx.fillStyle = this.getWorkstationColor(fileName);
-                ctx.fillRect(0, 0, 100, 70);
+                ctx.fillRect(0, 0, 100, 60);
                 this.textures[fileName] = canvas;
                 resolve();
             };
-            img.src = `https://a41k.me/SushiKing/textures/${fileName}.jpg`;
+            img.src = `/textures/${fileName}.png`;
         });
     });
 
